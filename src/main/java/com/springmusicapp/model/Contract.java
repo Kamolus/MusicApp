@@ -13,8 +13,8 @@ import jakarta.persistence.*;
 @Entity
 public class Contract {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     @OneToOne(fetch = FetchType.EAGER)
     private BandManager manager;

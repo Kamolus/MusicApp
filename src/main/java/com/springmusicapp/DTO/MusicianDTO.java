@@ -1,6 +1,7 @@
 package com.springmusicapp.DTO;
 
 import com.springmusicapp.model.MusicianType;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -12,6 +13,7 @@ public class MusicianDTO {
 
     @NotBlank
     @Email
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotBlank

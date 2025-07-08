@@ -10,8 +10,8 @@ import java.util.Objects;
 public abstract class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
     @NotBlank
     @Column(nullable = false)
     private String name;
@@ -30,9 +30,6 @@ public abstract class User {
     }
 
     public void setName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
-        }
         this.name = name;
     }
 

@@ -8,8 +8,8 @@ import jakarta.validation.constraints.NotNull;
 public class Song{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
     @NotNull
     private int duration;

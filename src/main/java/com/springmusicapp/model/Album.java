@@ -18,13 +18,13 @@ import java.util.List;
 public class Album{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
     @NotBlank
     private String title;
 
-    @NotNull
+    @Column(nullable = false)
     private int releaseYear;
     private boolean isLimitedEdition;
     private int sells;

@@ -1,5 +1,8 @@
 package com.springmusicapp.model;
 
+import jakarta.persistence.Entity;
+
+@Entity
 public class UnpopularBand extends Band {
 
     private String targetGroup;
@@ -24,6 +27,10 @@ public class UnpopularBand extends Band {
             this.performances.add(p);
         }
         //dodac usuwanie
+    }
+
+    public UnpopularBand() {
+
     }
 
     public String getTargetGroup() {
