@@ -5,19 +5,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Table(name = "songs")
 public class Song{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @NotNull
+    @Column(nullable = false)
     private int duration;
 
-    @NotBlank
+    @Column(nullable = false)
     private String title;
 
     @ManyToOne
+    @JoinColumn(name = "album_id")
     private Album album;
 
     public Song() {

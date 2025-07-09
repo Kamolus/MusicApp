@@ -1,10 +1,14 @@
 package com.springmusicapp.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "unpopular_bands")
 public class UnpopularBand extends Band {
 
+    @Column(nullable = false)
     private String targetGroup;
 
     public UnpopularBand(String name, String targetGroup) {

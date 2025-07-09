@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Entity
+@Table(name = "genres")
 public class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

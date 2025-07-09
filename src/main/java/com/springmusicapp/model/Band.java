@@ -17,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "bands")
 public abstract class Band {
 
     @Id
@@ -28,13 +29,13 @@ public abstract class Band {
 
     private int totalSells; // obliczane dynamicznie z albumów
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     protected final List<Musician> members = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     protected List<Album> albums = new ArrayList<>();
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     protected List<Performance> performances = new ArrayList<>();
 
     public Band() {

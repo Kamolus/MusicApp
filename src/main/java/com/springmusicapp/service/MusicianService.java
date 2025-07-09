@@ -11,10 +11,11 @@ import java.util.EnumSet;
 import java.util.List;
 
 @Service
-public class MusicianService {
+public class MusicianService extends AbstractUserService {
     private final MusicianRepository musicianRepository;
 
     public MusicianService(MusicianRepository musicianRepository) {
+        super(musicianRepository);
         this.musicianRepository = musicianRepository;
     }
 

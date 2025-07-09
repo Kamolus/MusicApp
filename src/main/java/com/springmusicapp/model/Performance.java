@@ -3,15 +3,19 @@ package com.springmusicapp.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "performances")
 public class Performance{
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
     @OneToOne
+    @JoinColumn(name = "event_id")
     private Event event;
 
     @OneToOne
+    @JoinColumn(name = "band_id")
     private Band band;
 
     private boolean isMainBand;

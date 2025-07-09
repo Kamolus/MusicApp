@@ -15,6 +15,7 @@ import java.util.List;
  * Dziedziczy po ObjectExtent – dodawana jest automatycznie do ekstensji.
  */
 @Entity
+@Table(name = "albums")
 public class Album{
 
     @Id
@@ -36,8 +37,7 @@ public class Album{
     @ManyToOne
     private Band band;
 
-    @OneToMany
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Song> songs = new ArrayList<>();
 
     /**

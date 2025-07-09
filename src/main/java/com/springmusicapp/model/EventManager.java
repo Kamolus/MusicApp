@@ -1,8 +1,7 @@
 package com.springmusicapp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -10,11 +9,15 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
+@Table(name = "event_managers")
 public class EventManager extends Employee {
 
 
+    @NotBlank
+    @Column(nullable = false)
     private String areaOfOperation;
-    @OneToMany
+
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Event> events = new ArrayList<>();
 
     public EventManager(String name, String email, LocalDate hireDate, double salary, String areaOfOperation) {

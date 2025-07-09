@@ -1,13 +1,16 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity
 public class PopularBand extends Band {
 
     @OneToOne
+    @JoinColumn(name = "contract_id")
     private Contract contract;
+
     private double earnedMoney;
 
     public PopularBand() {

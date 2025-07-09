@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface MusicianRepository extends JpaRepository<Musician, Long> {
+public interface MusicianRepository extends UserRepository<Musician> {
     Optional<Musician> findByStageName(String stageName);
 }

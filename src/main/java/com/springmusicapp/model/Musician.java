@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import java.util.Objects;
 
 @Entity
+@Table(name = "musicians")
 public class Musician extends User  {
 
     @ElementCollection(targetClass = MusicianType.class, fetch = FetchType.EAGER)
@@ -20,6 +21,7 @@ public class Musician extends User  {
     private String stageName;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "band_id")
     private Band currentBand;
 
     public Musician() {

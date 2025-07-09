@@ -11,6 +11,7 @@ import jakarta.persistence.*;
  */
 
 @Entity
+@Table(name = "contracts")
 public class Contract {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

@@ -14,6 +14,7 @@ import java.util.Optional;
  */
 
 @Entity
+@Table(name = "band_managers")
 public class BandManager extends EventManager implements IScout {
 
     private static final int MAX_CONTRACTS = 2; // Maksymalna liczba kontraktów, które może mieć menedżer
