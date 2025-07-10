@@ -30,7 +30,6 @@ public class UnpopularBand extends Band {
             p.updateBand(this);
             this.performances.add(p);
         }
-        //dodac usuwanie
     }
 
     public UnpopularBand() {

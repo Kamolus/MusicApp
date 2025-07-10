@@ -1,13 +1,20 @@
 package com.springmusicapp.DTO;
 
-import com.springmusicapp.model.MusicianType;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Set;
+import java.util.List;
 
+@Getter
+@Setter
 public class MusicianDTO {
+
+    @NotBlank
+    private Long id;
+
     @NotBlank
     private String name;
 
@@ -19,37 +26,9 @@ public class MusicianDTO {
     @NotBlank
     private String stageName;
 
-    private Set<MusicianType> types;
+    private Long currentBandId;
 
-    public String getName() {
-        return name;
-    }
+    private String currentBand;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getStageName() {
-        return stageName;
-    }
-
-    public void setStageName(String stageName) {
-        this.stageName = stageName;
-    }
-
-    public Set<MusicianType> getTypes() {
-        return types;
-    }
-
-    public void setTypes(Set<MusicianType> types) {
-        this.types = types;
-    }
+    private List<String> types;
 }

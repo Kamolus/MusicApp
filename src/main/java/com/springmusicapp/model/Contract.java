@@ -21,8 +21,11 @@ public class Contract {
     private BandManager manager;
     @OneToOne(fetch = FetchType.EAGER)
     private PopularBand band;
+
     private int duration;
+
     private double basePayment;
+
     private double payPerPerformance;
 
     /**

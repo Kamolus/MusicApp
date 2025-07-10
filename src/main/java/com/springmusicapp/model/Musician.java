@@ -2,10 +2,14 @@ package com.springmusicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.EnumSet;
 import java.util.Objects;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "musicians")
 public class Musician extends User  {

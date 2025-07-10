@@ -2,6 +2,8 @@ package com.springmusicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +16,8 @@ import java.util.List;
  * Dziedziczy po ObjectExtent – obsługa ekstensji obiektów.
  */
 
-
+@Getter
+@Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "bands")
