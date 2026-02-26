@@ -7,19 +7,19 @@ import lombok.Setter;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Set;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @Table(name = "musicians")
 public class Musician extends User  {
 
     @ElementCollection(targetClass = MusicianType.class, fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
     @CollectionTable(name = "musician_types", joinColumns = @JoinColumn(name = "musician_id"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "type")
-    private EnumSet<MusicianType> types;
-
+    private Set<MusicianType> types;
     @NotBlank
     @Column(nullable = false)
     private String stageName;
@@ -35,10 +35,6 @@ public class Musician extends User  {
         super(name, email);
         setStageName(stageName);
         this.types = types;
-    }
-
-    public String getStageName() {
-        return stageName;
     }
 
     public void setStageName(String stageName) {
@@ -57,10 +53,14 @@ public class Musician extends User  {
     }
 
     public void assignToBand(Band band) {
-        if (isAvailable() && band != null) {
-            this.currentBand = band;
-            band.addMusician(this);
+        if (band == null) {
+            throw new IllegalArgumentException("Band cannot be null");
         }
+        if (!isAvailable()) {
+            throw new IllegalStateException("Musician is already in a band");
+        }
+        this.currentBand = band;
+        band.addMusician(this);
     }
 
     public void removeBand(){
@@ -72,10 +72,6 @@ public class Musician extends User  {
 
     protected void updateBand(Band band) {
         this.currentBand = band;
-    }
-
-    public EnumSet<MusicianType> getTypes() {
-        return types;
     }
 
     @Override

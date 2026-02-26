@@ -1,11 +1,14 @@
 package com.springmusicapp.mapper;
 
-import com.springmusicapp.DTO.MusicianDTO;
+import com.springmusicapp.dto.CreateMusicianDTO;
+import com.springmusicapp.dto.MusicianDTO;
+import com.springmusicapp.model.Band;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.model.MusicianType;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MusicianMapper {
@@ -14,7 +17,6 @@ public class MusicianMapper {
         if (musician == null) return null;
 
         MusicianDTO dto = new MusicianDTO();
-        dto.setId(musician.getId());
         dto.setName(musician.getName());
         dto.setEmail(musician.getEmail());
         dto.setStageName(musician.getStageName());
@@ -22,13 +24,19 @@ public class MusicianMapper {
                 .map(Enum::name)
                 .toList());
 
-        dto.setCurrentBand(musician.getCurrentBand() != null ? musician.getCurrentBand().getName() : null);
+        dto.setCurrentBand(
+                Optional.ofNullable(musician.getCurrentBand())
+                        .map(Band::getName)
+                        .orElse(null)
+        );
 
         return dto;
     }
 
-    public static Musician toEntity(MusicianDTO dto) {
-        if (dto == null) return null;
+    public static Musician toEntity(CreateMusicianDTO dto) {
+        if (dto == null) {
+            return null;
+        }
 
         Musician musician = new Musician();
         musician.setName(dto.getName());

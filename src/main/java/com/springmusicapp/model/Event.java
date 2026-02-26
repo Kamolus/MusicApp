@@ -1,6 +1,8 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,6 +11,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
+@Getter
+@Setter
+@Table(name = "events")
 public class Event{
 
     @Id
@@ -46,14 +51,6 @@ public class Event{
             throw new IllegalArgumentException("Event date must be in the future");
         }
         this.date = date;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public LocalDate getDate() {
-        return date;
     }
 
     public String getEventManager() {

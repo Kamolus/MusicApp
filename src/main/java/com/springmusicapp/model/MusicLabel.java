@@ -2,11 +2,16 @@ package com.springmusicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "music_labels")
 public class MusicLabel {
@@ -29,13 +34,6 @@ public class MusicLabel {
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
 
     public void setName(String name) {
         if (name == null || name.isBlank()) {
@@ -45,7 +43,7 @@ public class MusicLabel {
     }
 
     public List<Employee> getEmployees() {
-        return employees;
+        return Collections.unmodifiableList(employees);
     }
 
     public void addEmployee(Employee employee) {

@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -19,27 +18,35 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "bands")
-public abstract class Band {
+public class Band {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
+    @Column(nullable = false)
     private String name;
 
-    private int totalSells; // obliczane dynamicznie z albumów
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BandStatus status = BandStatus.UNPOPULAR;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    private double earnedMoney = 0.0;
+
+    @OneToMany(mappedBy = "currentBand",fetch = FetchType.LAZY)
     protected final List<Musician> members = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "band",fetch = FetchType.LAZY)
+    @OrderBy("releaseYear ASC")
     protected List<Album> albums = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "band",fetch = FetchType.LAZY)
     protected List<Performance> performances = new ArrayList<>();
+
+    @OneToOne(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Contract contract;
 
     public Band() {
     }
@@ -51,6 +58,51 @@ public abstract class Band {
     public Band(String name) {
             setName(name);
     }
+
+    public int getTotalSells() {
+        return albums.stream().mapToInt(Album::getSells).sum();
+    }
+
+
+    public void evaluatePromotion() {
+        int sells = getTotalSells();
+
+        if (status == BandStatus.UNPOPULAR && sells >= 10000) {
+            this.status = BandStatus.POPULAR;
+        } else if (status == BandStatus.POPULAR && sells < 10000) {
+            this.status = BandStatus.UNPOPULAR;
+            if (this.contract != null) {
+                this.removeContract();
+            }
+        }
+    }
+
+    public void addContract(Contract newContract) {
+        if (this.status == BandStatus.UNPOPULAR) {
+            throw new IllegalStateException("Unpopular bands cannot sign contracts with managers!");
+        }
+
+        if (newContract == null) throw new IllegalArgumentException("Contract cannot be null");
+
+        this.contract = newContract;
+        newContract.setBand(this);
+    }
+
+    public void removeContract() {
+        if (this.contract != null) {
+            this.contract.setBand(null);
+            this.contract = null;
+        }
+    }
+
+    public void addAlbum(Album album) {
+        if (!albums.contains(album) && !album.hasAssignedBand()) {
+            albums.add(album);
+            album.setBand(this);
+            evaluatePromotion();
+        }
+    }
+
 
     /**
      * Ustawia nazwę zespołu.
@@ -69,22 +121,6 @@ public abstract class Band {
         if (!members.contains(musician)) {
             members.add(musician);
             musician.assignToBand(this); // dwustronna relacja
-        }
-    }
-
-    /**
-     * Dodaje album do zespołu i ustawia sortowanie po roku wydania.
-     * Sprawdza też możliwość awansu zespołu.
-     */
-    public void addAlbum(Album album) {
-        if (!albums.contains(album) && !album.hasAssignedBand()) {
-            albums.add(album);
-            album.setBand(this);
-            albums.sort(Comparator.comparing(Album::getReleaseYear));
-
-            if (canBePopular()) {
-                System.out.println("U can be popularBand!");
-            }
         }
     }
 
@@ -136,40 +172,6 @@ public abstract class Band {
         performances.add(performance);
     }
 
-    /**
-     * Ewaluacja promocji/degradacji zespołu na podstawie sprzedaży.
-     * Tworzy nową instancję klasy (PopularBand / UnpopularBand), usuwa starą.
-     */
-    public Band evaluatePromotionAndReturn() {
-        if (this instanceof PopularBand popular && getTotalSells() < 10000) {
-            System.out.println("Zespół zdegradowany do UnpopularBand");
-            //dodac usuwanie z bazy
-            return new UnpopularBand(popular);
-        } else if (this instanceof UnpopularBand unpopular && getTotalSells() >= 10000) {
-            System.out.println("Zespół awansowany do PopularBand");
-            //dodac usuwanie z bazy
-            return new PopularBand(unpopular);
-        }
-        // Brak zmiany – zwracamy ten sam obiekt
-        //dodac usuwanie z bazy
-        return this;
-    }
-
-    /**
-     * Sprawdza czy zespół może awansować do klasy PopularBand.
-     */
-    private boolean canBePopular() {
-        return this instanceof UnpopularBand && getTotalSells() > 10000;
-    }
-
-    /**
-     * Oblicza łączną sprzedaż albumów.
-     */
-    public int getTotalSells() {
-        return albums.stream().mapToInt(Album::getSells).sum();
-    }
-
-    // GETTERY
 
     public List<Performance> getPerformances() {
         return Collections.unmodifiableList(performances);
@@ -181,10 +183,6 @@ public abstract class Band {
 
     public List<Album> getAlbums() {
         return Collections.unmodifiableList(albums);
-    }
-
-    public String getName() {
-        return name;
     }
 
     /**

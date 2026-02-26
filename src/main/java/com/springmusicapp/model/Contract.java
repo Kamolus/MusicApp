@@ -1,16 +1,13 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- * Klasa reprezentująca kontrakt pomiędzy menedżerem zespołu a popularnym zespołem muzycznym.
- * Kontrakt zawiera informacje o długości trwania umowy oraz wynagrodzeniu.
- * <p>
- * Obiekt jest automatycznie dodawany do ekstensji oraz do odpowiednich kolekcji
- * w {@link BandManager} i {@link PopularBand}.
- */
 
 @Entity
+@Getter
+@Setter
 @Table(name = "contracts")
 public class Contract {
     @Id
@@ -18,9 +15,12 @@ public class Contract {
     private Long id;
 
     @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "manager_id")
     private BandManager manager;
+
     @OneToOne(fetch = FetchType.EAGER)
-    private PopularBand band;
+    @JoinColumn(name = "band_id")
+    private Band band;
 
     private int duration;
 
@@ -32,7 +32,7 @@ public class Contract {
      * Konstruktor tworzący nowy kontrakt.
      *
      * manager            Menedżer podpisujący kontrakt.
-     * band               Zespół, z którym podpisywany jest kontrakt (musi być PopularBand).
+     * band               Zespół, z którym podpisywany jest kontrakt (musi być popularny).
      * duration           Czas trwania kontraktu (w miesiącach lub latach).
      * basePayment        Podstawowa wypłata.
      * payPerPerformance  Wypłata za występ.
@@ -42,7 +42,7 @@ public class Contract {
 
     }
 
-    public Contract(BandManager manager, PopularBand band, int duration,
+    public Contract(BandManager manager, Band band, int duration,
                     double basePayment, double payPerPerformance) {
         this.manager = manager;
         this.band = band;
@@ -54,27 +54,6 @@ public class Contract {
         manager.addContract(this);
         band.addContract(this);
     }
-
-    /** Zwraca menedżera przypisanego do kontraktu. */
-    public BandManager getManager() {
-        return manager;
-    }
-
-    /** Zwraca zespół przypisany do kontraktu. */
-    public Band getBand() {
-        return band;
-    }
-
-    /** Zwraca podstawowe wynagrodzenie zespołu. */
-    public double getBasePayment() {
-        return basePayment;
-    }
-
-    /** Zwraca stawkę za występ. */
-    public double getPayPerPerformance() {
-        return payPerPerformance;
-    }
-
     /**
      * Ustawia długość trwania kontraktu.
      * @param duration liczba większa od 0
