@@ -2,6 +2,8 @@ package com.springmusicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -10,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "genres")
 public class Genre {
     @Id
@@ -70,13 +74,6 @@ public class Genre {
         return Collections.unmodifiableCollection(albumMap.values());
     }
 
-    public String getGenreName() {
-        return name;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
 
     @Override
     public String toString() {

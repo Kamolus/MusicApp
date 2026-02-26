@@ -2,8 +2,8 @@ package com.springmusicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cascade;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,6 +15,8 @@ import java.util.List;
  * Dziedziczy po ObjectExtent – dodawana jest automatycznie do ekstensji.
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "albums")
 public class Album{
 
@@ -86,7 +88,7 @@ public class Album{
         }
         this.sells = sells;
         if (band != null) {
-            band.evaluatePromotionAndReturn(); // sprawdza awans zespołu
+            band.evaluatePromotion(); // sprawdza awans zespołu
         }
     }
 
@@ -104,10 +106,6 @@ public class Album{
             throw new IllegalArgumentException("Album title cannot be empty");
         }
         this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public void setReleaseYear(int releaseYear) {
@@ -172,13 +170,6 @@ public class Album{
     }
 
     /**
-     * Zwraca nazwę gatunku.
-     */
-    public String getGenreNamee() {
-        return genre.getGenreName();
-    }
-
-    /**
      * Sprawdza czy album przypisano do zespołu.
      */
     public boolean hasAssignedBand() {
@@ -192,9 +183,6 @@ public class Album{
         return Collections.unmodifiableList(songs);
     }
 
-    public int getReleaseYear() {
-        return releaseYear;
-    }
 
     /**
      * Reprezentacja tekstowa albumu.
@@ -206,7 +194,7 @@ public class Album{
                 ", releaseYear=" + releaseYear +
                 ", price=" + price +
                 ", songs=" + songs +
-                ", genre=" + genre.getGenreName() +
+                ", genre=" + genre.getName() +
                 '}';
     }
 }

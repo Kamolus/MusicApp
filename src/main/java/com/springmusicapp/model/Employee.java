@@ -38,35 +38,11 @@ public abstract class Employee extends User {
      */
     public Employee(String name, String email, LocalDate hireDate, double salary) {
         super(name, email);
-        setHireDate(hireDate);
+        this.hireDate = hireDate;
         setSalary(salary);
     }
 
     public Employee(){}
-
-    /**
-     * Zwraca datę zatrudnienia pracownika.
-     * @return hireDate
-     */
-    public LocalDate getHireDate() {
-        return hireDate;
-    }
-
-    /**
-     * Ustawia datę zatrudnienia.
-     * @param hireDate data różna od null
-     */
-    public void setHireDate(LocalDate hireDate) {
-        this.hireDate = hireDate;
-    }
-
-    /**
-     * Zwraca wysokość wynagrodzenia.
-     * @return salary
-     */
-    public double getSalary() {
-        return salary;
-    }
 
     /**
      * Ustawia wysokość wynagrodzenia.

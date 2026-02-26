@@ -1,6 +1,8 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,10 +16,13 @@ import java.util.Optional;
  */
 
 @Entity
+@Getter
+@Setter
 @Table(name = "band_managers")
 public class BandManager extends EventManager implements IScout {
 
     private static final int MAX_CONTRACTS = 2; // Maksymalna liczba kontraktów, które może mieć menedżer
+
     @OneToMany
     private List<Contract> contracts = new ArrayList<>(); // Lista aktywnych kontraktów
     private String phoneNumber; // Numer telefonu menedżera
@@ -31,6 +36,7 @@ public class BandManager extends EventManager implements IScout {
         setPhoneNumber(phoneNumber);
 
     }
+
 
     public BandManager() {}
 
@@ -53,6 +59,8 @@ public class BandManager extends EventManager implements IScout {
         return phoneNumber;
     }
 
+
+
     /**
      * Usuwa kontrakt z listy kontraktów menedżera oraz rozłącza go z obiektem Contract.
      */
@@ -66,7 +74,7 @@ public class BandManager extends EventManager implements IScout {
     /**
      * Tworzy nowy kontrakt z zespołem, jeżeli taki jeszcze nie istnieje.
      */
-    public void signContract(PopularBand band, int duration, double basePayment, double payPerPerformance) {
+    public void signContract(Band band, int duration, double basePayment, double payPerPerformance) {
         if (contracts.stream().noneMatch(contract -> contract.getBand().equals(band))) {
             new Contract(this, band, duration, basePayment, payPerPerformance); // kontrakt dodaje się automatycznie do managera przez konstruktor
         }

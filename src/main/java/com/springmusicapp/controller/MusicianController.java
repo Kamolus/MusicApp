@@ -1,6 +1,7 @@
-package com.springmusicapp.controllers;
+package com.springmusicapp.controller;
 
-import com.springmusicapp.DTO.MusicianDTO;
+import com.springmusicapp.dto.CreateMusicianDTO;
+import com.springmusicapp.dto.MusicianDTO;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.service.MusicianService;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class MusicianController {
     }
 
     @PostMapping
-    public ResponseEntity<Musician> create(@RequestBody MusicianDTO dto) {
+    public ResponseEntity<Musician> create(@RequestBody CreateMusicianDTO dto) {
         Musician saved = musicianService.create(dto);
         return ResponseEntity.ok(saved);
     }
@@ -40,4 +41,17 @@ public class MusicianController {
         musicianService.assignToBand(musicianId, bandId);
         return ResponseEntity.ok("Musician assigned to band");
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable Long id) {
+        musicianService.removeById(id);
+        return ResponseEntity.ok("Musician removed");
+    }
+
+    @DeleteMapping("delete/by_email/{email}")
+    public ResponseEntity<String> deleteByEmail(@PathVariable String email) {
+        musicianService.removeByEmail(email);
+        return ResponseEntity.ok("Musician removed");
+    }
+
 }

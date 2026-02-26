@@ -2,6 +2,8 @@ package com.springmusicapp.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "event_managers")
 public class EventManager extends Employee {
 
@@ -27,9 +31,6 @@ public class EventManager extends Employee {
 
     public EventManager(){}
 
-    public String getAreaOfOperation() {
-        return areaOfOperation;
-    }
 
     public void setAreaOfOperation(String areaOfOperation) {
         if(areaOfOperation == null || areaOfOperation.isBlank()) {

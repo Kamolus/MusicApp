@@ -1,20 +1,24 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "performances")
 public class Performance{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Integer id;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "band_id")
     private Band band;
 
@@ -32,10 +36,6 @@ public class Performance{
 
     }
 
-    public Event getEvent() {
-        return event;
-    }
-
     public void setEvent(Event event) {
         if(event == null) {
             throw new NullPointerException("Event cannot be null");
@@ -43,9 +43,6 @@ public class Performance{
         this.event = event;
     }
 
-    public Band getBand() {
-        return band;
-    }
 
     public void setBand(Band band) {
         if(band == null || band.equals(this.band)) {
