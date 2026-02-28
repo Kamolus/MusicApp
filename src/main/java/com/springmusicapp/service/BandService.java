@@ -1,7 +1,9 @@
 package com.springmusicapp.service;
 
+import com.springmusicapp.dto.BandDTO;
 import com.springmusicapp.exception.BandException;
 import com.springmusicapp.exception.MusicianException;
+import com.springmusicapp.mapper.BandMapper;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.model.Band;
 import com.springmusicapp.repository.BandRepository;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BandService{
@@ -22,19 +25,20 @@ public class BandService{
         this.musicianRepository = musicianRepository;
     }
 
-    public Band findById(Long id) {
-        return bandRepository.findById(id).orElseThrow(() -> new BandException("Band not found with id:" + id,
+    public BandDTO findById(Long id) {
+        Band band = bandRepository.findById(id).orElseThrow(() -> new BandException("Band not found with id:" + id,
                 HttpStatus.NOT_FOUND));
+        return BandMapper.toDto(band);
     }
 
-    public List<Band> findByName(String name) {
+    public List<BandDTO> findByName(String name) {
         List<Band> bands = bandRepository.findByName(name);
 
         if (bands.isEmpty()) {
             throw new BandException("Band not found with name:" + name, HttpStatus.NOT_FOUND);
         }
 
-        return bands;
+        return bands.stream().map(BandMapper::toDto).toList();
     }
 
     public void assignMusician(Long bandId, Long musicianId){
@@ -57,14 +61,14 @@ public class BandService{
         return bandRepository.save(band);
     }
 
-    public List<Band> findAll() {
+    public List<BandDTO> findAll() {
         List<Band> bands = bandRepository.findAll();
 
         if (bands.isEmpty()) {
             throw new BandException("Band not found", HttpStatus.NOT_FOUND);
         }
 
-        return bands;
+        return bands.stream().map(BandMapper::toDto).toList();
     }
 
 }
