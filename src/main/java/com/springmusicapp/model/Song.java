@@ -13,7 +13,7 @@ public class Song{
     private Long id;
 
     @Column(nullable = false)
-    private int duration;
+    private Integer duration;
 
     @Column(nullable = false)
     private String title;

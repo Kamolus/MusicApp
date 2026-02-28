@@ -29,6 +29,7 @@ public class Album{
 
     @Column(nullable = false)
     private int releaseYear;
+
     private boolean isLimitedEdition;
     private int sells;
     private int price;

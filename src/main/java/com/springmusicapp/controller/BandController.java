@@ -24,30 +24,20 @@ public class BandController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BandDTO> getBandById(@PathVariable Long id) {
-        Band band = bandService.findById(id);
-        BandDTO responseDto = BandMapper.toDto(band);
-        return ResponseEntity.ok(responseDto);
+        BandDTO band = bandService.findById(id);
+        return ResponseEntity.ok(band);
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<BandDTO>> getBandsByName(@RequestParam String name) {
-        List<Band> bands = bandService.findByName(name);
-
-        List<BandDTO> responseDtos = bands.stream()
-                .map(BandMapper::toDto)
-                .toList();
-
-        return ResponseEntity.ok(responseDtos);
+        List<BandDTO> bands = bandService.findByName(name);
+        return ResponseEntity.ok(bands);
     }
 
     @GetMapping
     public ResponseEntity<List<BandDTO>> getAllBands() {
-        // Tu zakładam, że masz metodę findAll() w BandService
-        List<Band> bands = bandService.findAll();
-        List<BandDTO> responseDtos = bands.stream()
-                .map(BandMapper::toDto)
-                .toList();
-        return ResponseEntity.ok(responseDtos);
+        List<BandDTO> bands = bandService.findAll();
+        return ResponseEntity.ok(bands);
     }
 
     @PostMapping
@@ -63,6 +53,6 @@ public class BandController {
     public ResponseEntity<String> assignMusicianToBand(@PathVariable Long bandId, @PathVariable Long musicianId) {
         bandService.assignMusician(bandId, musicianId);
 
-        return ResponseEntity.ok("Musician assigned successfully to the band!");
+        return ResponseEntity.ok("Musician assigned successfully to the band");
     }
 }
