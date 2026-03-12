@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -27,6 +28,9 @@ public class Musician extends User  {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "band_id")
     private Band currentBand;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Song> guestApperances;
 
     public Musician() {
     }

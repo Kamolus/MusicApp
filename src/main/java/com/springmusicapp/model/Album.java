@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,17 +23,18 @@ public class Album{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Integer id;
+    private Long id;
+
+    private String spotifyId;
+
+    private String imageUrl;
 
     @NotBlank
     private String title;
 
     @Column(nullable = false)
-    private int releaseYear;
-
-    private boolean isLimitedEdition;
-    private int sells;
-    private int price;
+    @DateTimeFormat
+    private String releaseDate;
 
     @ManyToOne
     private Genre genre;
@@ -43,22 +45,14 @@ public class Album{
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Song> songs = new ArrayList<>();
 
-    /**
-     * Konstruktor albumu – wymaga podstawowych danych.
-     */
-    public Album(String title, int releaseYear, boolean isLimitedEdition, Genre genre, int sells) {
+    public Album(String title, String releaseDate, Genre genre) {
         setTitle(title);
-        setReleaseYear(releaseYear);
+        setReleaseDate(releaseDate);
         setGenre(genre);
-        setLimitedEdition(isLimitedEdition);
-        setSells(sells);
     }
 
     public Album(){}
 
-    /**
-     * Przypisanie gatunku – zachowana spójność dwustronna.
-     */
     public void setGenre(Genre genre) {
         if (this.genre == null || genre.equals(this.genre)) {
             this.genre = genre;
@@ -66,9 +60,6 @@ public class Album{
         }
     }
 
-    /**
-     * Usunięcie relacji z gatunkiem.
-     */
     public void removeGenre(Genre genre) {
         if (genre.equals(this.genre)) {
             this.genre = null;
@@ -76,31 +67,6 @@ public class Album{
         }
     }
 
-    public int getSells() {
-        return sells;
-    }
-
-    /**
-     * Ustawienie sprzedaży – wywołuje ewaluację awansu zespołu.
-     */
-    private void setSells(int sells) {
-        if (this.sells < 0) {
-            throw new IllegalArgumentException("Sells cannot be negative");
-        }
-        this.sells = sells;
-        if (band != null) {
-            band.evaluatePromotion(); // sprawdza awans zespołu
-        }
-    }
-
-    /**
-     * Uaktualnia sprzedaż tylko jeśli nowa wartość jest większa.
-     */
-    public void updateSells(int sells) {
-        if (sells > this.sells) {
-            this.sells = sells;
-        }
-    }
 
     public void setTitle(String title) {
         if (title == null || title.isBlank()) {
@@ -109,24 +75,7 @@ public class Album{
         this.title = title;
     }
 
-    public void setReleaseYear(int releaseYear) {
-        if (releaseYear <= 0) {
-            throw new IllegalArgumentException("Release year must be positive");
-        }
-        this.releaseYear = releaseYear;
-    }
 
-    /**
-     * Ustawienie flagi limitowanej edycji oraz ceny.
-     */
-    public void setLimitedEdition(boolean limitedEdition) {
-        this.price = limitedEdition ? 50 : 20;
-        this.isLimitedEdition = limitedEdition;
-    }
-
-    /**
-     * Przypisanie albumu do zespołu – zachowuje spójność.
-     */
     public void setBand(Band band) {
         if (band != null) {
             this.band = band;
@@ -134,9 +83,10 @@ public class Album{
         }
     }
 
-    /**
-     * Usuwa przypisanie zespołu – zachowuje spójność.
-     */
+    public int getTotalViews() {
+        return songs.stream().mapToInt(Song::getViews).sum();
+    }
+
     public void removeBand(Band band) {
         if (band.equals(this.band)) {
             band.removeAlbum(this);
@@ -192,8 +142,7 @@ public class Album{
     public String toString() {
         return "Album{" +
                 "title='" + title + '\'' +
-                ", releaseYear=" + releaseYear +
-                ", price=" + price +
+                ", releaseYear=" + releaseDate +
                 ", songs=" + songs +
                 ", genre=" + genre.getName() +
                 '}';

@@ -51,25 +51,19 @@ public class Band {
     public Band() {
     }
 
-    /**
-     * Konstruktor zespołu – wymaga tylko nazwy.
-     */
-
     public Band(String name) {
             setName(name);
     }
 
-    public int getTotalSells() {
-        return albums.stream().mapToInt(Album::getSells).sum();
+    public int getBandViews() {
+        return albums.stream().mapToInt(Album::getTotalViews).sum();
     }
 
 
     public void evaluatePromotion() {
-        int sells = getTotalSells();
-
-        if (status == BandStatus.UNPOPULAR && sells >= 10000) {
+        if (status == BandStatus.UNPOPULAR && getBandViews() >= 10000) {
             this.status = BandStatus.POPULAR;
-        } else if (status == BandStatus.POPULAR && sells < 10000) {
+        } else if (status == BandStatus.POPULAR && getBandViews() < 10000) {
             this.status = BandStatus.UNPOPULAR;
             if (this.contract != null) {
                 this.removeContract();

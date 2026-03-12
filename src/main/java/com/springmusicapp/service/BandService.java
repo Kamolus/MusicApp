@@ -1,8 +1,8 @@
 package com.springmusicapp.service;
 
 import com.springmusicapp.dto.BandDTO;
-import com.springmusicapp.exception.BandException;
-import com.springmusicapp.exception.MusicianException;
+import com.springmusicapp.exception.BusinessLogicException;
+import com.springmusicapp.exception.ResourceNotFoundException;
 import com.springmusicapp.mapper.BandMapper;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.model.Band;
@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BandService{
@@ -26,8 +25,7 @@ public class BandService{
     }
 
     public BandDTO findById(Long id) {
-        Band band = bandRepository.findById(id).orElseThrow(() -> new BandException("Band not found with id:" + id,
-                HttpStatus.NOT_FOUND));
+        Band band = bandRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Band", "id", id));
         return BandMapper.toDto(band);
     }
 
@@ -35,7 +33,7 @@ public class BandService{
         List<Band> bands = bandRepository.findByName(name);
 
         if (bands.isEmpty()) {
-            throw new BandException("Band not found with name:" + name, HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Band", "name", name);
         }
 
         return bands.stream().map(BandMapper::toDto).toList();
@@ -43,15 +41,14 @@ public class BandService{
 
     public void assignMusician(Long bandId, Long musicianId){
         Musician musician = musicianRepository.findById(musicianId)
-                .orElseThrow(() -> new MusicianException("Musician not found with id:" + musicianId,
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", musicianId));
 
         if (!musician.isAvailable()) {
-            throw new MusicianException("Musician is already in a band", HttpStatus.CONFLICT);
+            throw new BusinessLogicException("Musician is already in a band");
         }
 
         Band band = bandRepository.findById(bandId)
-                .orElseThrow(() -> new BandException("Band not found with id:" + bandId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Band", "id", bandId));
 
         band.addMusician(musician);
         musicianRepository.save(musician);
@@ -62,13 +59,7 @@ public class BandService{
     }
 
     public List<BandDTO> findAll() {
-        List<Band> bands = bandRepository.findAll();
-
-        if (bands.isEmpty()) {
-            throw new BandException("Band not found", HttpStatus.NOT_FOUND);
-        }
-
-        return bands.stream().map(BandMapper::toDto).toList();
+        return bandRepository.findAll().stream().map(BandMapper::toDto).toList();
     }
 
 }

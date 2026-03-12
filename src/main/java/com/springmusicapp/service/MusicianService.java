@@ -2,8 +2,6 @@ package com.springmusicapp.service;
 
 import com.springmusicapp.dto.CreateMusicianDTO;
 import com.springmusicapp.dto.MusicianDTO;
-import com.springmusicapp.exception.BandException;
-import com.springmusicapp.exception.MusicianException;
 import com.springmusicapp.mapper.MusicianMapper;
 import com.springmusicapp.model.Band;
 import com.springmusicapp.model.Musician;

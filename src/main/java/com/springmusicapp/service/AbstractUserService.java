@@ -1,12 +1,8 @@
 package com.springmusicapp.service;
 
-import com.springmusicapp.exception.UserException;
 import com.springmusicapp.model.User;
 import com.springmusicapp.repository.UserRepository;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
-import java.util.Optional;
 
 public abstract class AbstractUserService<T extends User> {
 

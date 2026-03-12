@@ -27,20 +27,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, errorResponse, headers, status, request);
     }
 
-    @ExceptionHandler(MusicianException.class)
-    public ResponseEntity<Object> handleMusicianException(MusicianException ex, WebRequest request) {
-
-        ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage());
-
-        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), ex.getStatus(), request);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), ex.getMessage());
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler(BandException.class)
-    public ResponseEntity<Object> handleBandException(BandException ex, WebRequest request) {
-
-        ErrorResponse errorResponse = new ErrorResponse(ex.getStatus().value(), ex.getMessage());
-
-        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), ex.getStatus(), request);
+    @ExceptionHandler(BusinessLogicException.class)
+    public ResponseEntity<Object> handleBusinessLogicException(BusinessLogicException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        return handleExceptionInternal(ex, errorResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(Exception.class)
