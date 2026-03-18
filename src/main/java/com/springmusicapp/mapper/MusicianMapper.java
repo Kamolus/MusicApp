@@ -16,21 +16,21 @@ public class MusicianMapper {
     public static MusicianDTO toDto(Musician musician) {
         if (musician == null) return null;
 
-        MusicianDTO dto = new MusicianDTO();
-        dto.setName(musician.getName());
-        dto.setEmail(musician.getEmail());
-        dto.setStageName(musician.getStageName());
-        dto.setTypes(musician.getTypes().stream()
+        List<String> types = musician.getTypes().stream()
                 .map(Enum::name)
-                .toList());
+                .toList();
 
-        dto.setCurrentBand(
-                Optional.ofNullable(musician.getCurrentBand())
-                        .map(Band::getName)
-                        .orElse(null)
+        String currentBandName = Optional.ofNullable(musician.getCurrentBand())
+                .map(Band::getName)
+                .orElse(null);
+
+        return new MusicianDTO(
+                musician.getName(),
+                musician.getEmail(),
+                musician.getStageName(),
+                currentBandName,
+                types
         );
-
-        return dto;
     }
 
     public static Musician toEntity(CreateMusicianDTO dto) {
@@ -39,12 +39,12 @@ public class MusicianMapper {
         }
 
         Musician musician = new Musician();
-        musician.setName(dto.getName());
-        musician.setEmail(dto.getEmail());
-        musician.setStageName(dto.getStageName());
+        musician.setName(dto.name());
+        musician.setEmail(dto.email());
+        musician.setStageName(dto.stageName());
 
-        if (dto.getTypes() != null) {
-            EnumSet<MusicianType> typeSet = dto.getTypes().stream()
+        if (dto.types() != null) {
+            EnumSet<MusicianType> typeSet = dto.types().stream()
                     .map(String::toUpperCase)
                     .map(MusicianType::valueOf)
                     .collect(Collectors.toCollection(() -> EnumSet.noneOf(MusicianType.class)));
@@ -55,11 +55,5 @@ public class MusicianMapper {
         }
 
         return musician;
-    }
-
-    public static EnumSet<MusicianType> mapTypes(List<String> typeStrings) {
-        return typeStrings.stream()
-                .map(MusicianType::valueOf)
-                .collect(Collectors.toCollection(() -> EnumSet.noneOf(MusicianType.class)));
     }
 }

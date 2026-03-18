@@ -7,6 +7,8 @@ import com.springmusicapp.model.Album;
 import com.springmusicapp.model.Band;
 import com.springmusicapp.model.Musician;
 
+import java.util.List;
+
 
 public class BandMapper{
 
@@ -14,17 +16,17 @@ public class BandMapper{
         if (band == null) {
             return null;
         }
+        List<String> albumsTitles = band.getAlbums().stream()
+                .map(Album::getTitle).toList();
 
-        BandDTO dto = new BandDTO();
+        List<String> musiciansNames = band.getMembers().stream()
+                .map(Musician::getStageName).toList();
 
-        dto.setName(band.getName());
-        dto.setBandStatus(band.getStatus());
-        dto.setAlbumsTitles(band.getAlbums().stream()
-                .map(Album::getTitle).toList());
-        dto.setMusiciansName(band.getMembers().stream()
-                .map(Musician::getStageName).toList());
-        dto.setHasActiveContract(band.getContract() != null);
-        return dto;
+        return new BandDTO(
+                band.getName(),
+                musiciansNames,
+                albumsTitles
+        );
     }
 
     public static Band toEntity(CreateBandDTO createDto) {
@@ -33,7 +35,7 @@ public class BandMapper{
         }
 
         Band band = new Band();
-        band.setName(createDto.getName());
+        band.setName(createDto.name());
 
         return band;
     }

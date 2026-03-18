@@ -8,7 +8,6 @@ import com.springmusicapp.model.Musician;
 import com.springmusicapp.model.Band;
 import com.springmusicapp.repository.BandRepository;
 import com.springmusicapp.repository.MusicianRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class BandService{
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", musicianId));
 
         if (!musician.isAvailable()) {
-            throw new BusinessLogicException("Musician is already in a band");
+            throw new BusinessLogicException("Musician is already in a band","ERR_MUSICIAN_ALREADY_ASSIGNED");
         }
 
         Band band = bandRepository.findById(bandId)

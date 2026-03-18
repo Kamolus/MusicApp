@@ -1,8 +1,9 @@
 package com.springmusicapp.service;
 
+import com.springmusicapp.exception.BusinessLogicException;
+import com.springmusicapp.exception.ResourceNotFoundException;
 import com.springmusicapp.model.User;
 import com.springmusicapp.repository.UserRepository;
-import org.springframework.http.HttpStatus;
 
 public abstract class AbstractUserService<T extends User> {
 
@@ -14,17 +15,17 @@ public abstract class AbstractUserService<T extends User> {
 
     public T getByIdOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserException("Entity not found with id: " + id, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Id", "id", id));
     }
 
     public T getByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserException("User not found with email: " + email, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 
     public void create(T user) {
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserException("This email is already used", HttpStatus.CONFLICT);
+            throw new BusinessLogicException("This email is already used", "ERR_EMAIL_ALREADY_USED");
         }
         userRepository.save(user);
     }

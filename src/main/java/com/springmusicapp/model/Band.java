@@ -39,7 +39,7 @@ public class Band {
     protected final List<Musician> members = new ArrayList<>();
 
     @OneToMany(mappedBy = "band",fetch = FetchType.LAZY)
-    @OrderBy("releaseYear ASC")
+    @OrderBy("releaseDate ASC")
     protected List<Album> albums = new ArrayList<>();
 
     @OneToMany(mappedBy = "band",fetch = FetchType.LAZY)

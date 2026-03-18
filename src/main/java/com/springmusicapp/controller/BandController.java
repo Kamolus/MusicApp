@@ -1,9 +1,12 @@
 package com.springmusicapp.controller;
 
+import com.springmusicapp.dto.AlbumDTO;
 import com.springmusicapp.dto.BandDTO;
+import com.springmusicapp.dto.CreateAlbumDTO;
 import com.springmusicapp.dto.CreateBandDTO;
 import com.springmusicapp.mapper.BandMapper;
 import com.springmusicapp.model.Band;
+import com.springmusicapp.service.AlbumService;
 import com.springmusicapp.service.BandService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -17,9 +20,11 @@ import java.util.List;
 public class BandController {
 
     private final BandService bandService;
+    private final AlbumService albumService;
 
-    public BandController(BandService bandService) {
+    public BandController(BandService bandService, AlbumService albumService) {
         this.bandService = bandService;
+        this.albumService = albumService;
     }
 
     @GetMapping("/{id}")
@@ -54,5 +59,14 @@ public class BandController {
         bandService.assignMusician(bandId, musicianId);
 
         return ResponseEntity.ok("Musician assigned successfully to the band");
+    }
+
+    @PostMapping("/{bandId}/albums")
+    public ResponseEntity<AlbumDTO> addAlbumToBand(
+            @PathVariable Long bandId,
+            @Valid @RequestBody CreateAlbumDTO createDto) {
+
+        AlbumDTO newAlbum = albumService.createAlbumForBand(bandId, createDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newAlbum);
     }
 }

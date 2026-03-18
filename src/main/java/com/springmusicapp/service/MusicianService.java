@@ -2,12 +2,13 @@ package com.springmusicapp.service;
 
 import com.springmusicapp.dto.CreateMusicianDTO;
 import com.springmusicapp.dto.MusicianDTO;
+import com.springmusicapp.exception.BusinessLogicException;
+import com.springmusicapp.exception.ResourceNotFoundException;
 import com.springmusicapp.mapper.MusicianMapper;
 import com.springmusicapp.model.Band;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.repository.BandRepository;
 import com.springmusicapp.repository.MusicianRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     public MusicianDTO getById(Long id) {
         Musician musician = musicianRepository.findById(id)
-                .orElseThrow(() -> new MusicianException("Musician not found with id: " + id, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", id));
         return MusicianMapper.toDto(musician);
     }
 
@@ -45,14 +46,14 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     public void assignToBand(Long musicianId, Long bandId){
         Musician musician = musicianRepository.findById(musicianId)
-            .orElseThrow(() -> new MusicianException("Musician not found with id: " + musicianId, HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", musicianId));
 
         if (!musician.isAvailable()) {
-            throw new MusicianException("Musician is already in a band", HttpStatus.CONFLICT);
+            throw new BusinessLogicException("Musician is already in a band", "ERR_Musician_already_in_band");
         }
 
         Band band = bandRepository.findById(bandId)
-                .orElseThrow(() -> new BandException("No band found with id: " + bandId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException("Band", "id", bandId));
 
         musician.assignToBand(band);
         musicianRepository.save(musician);
@@ -60,14 +61,14 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     public void removeById(Long id) {
         if (!musicianRepository.existsById(id)) {
-            throw new MusicianException("Musician not found with id: " + id, HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Musician", "id", id);
         }
         musicianRepository.deleteById(id);
     }
 
     public void removeByEmail(String email) {
         if(!musicianRepository.existsByEmail(email)){
-            throw new MusicianException("Musician not found with email: " + email, HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Musician", "email", email);
         }
         musicianRepository.deleteByEmail(email);
     }

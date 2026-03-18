@@ -2,8 +2,11 @@ package com.springmusicapp.mapper;
 
 import com.springmusicapp.dto.AlbumDTO;
 import com.springmusicapp.dto.CreateAlbumDTO;
+import com.springmusicapp.dto.SongForAlbumDTO;
 import com.springmusicapp.model.Album;
 import com.springmusicapp.model.Song;
+
+import java.util.List;
 
 public class AlbumMapper {
 
@@ -12,13 +15,18 @@ public class AlbumMapper {
             return null;
         }
 
-        AlbumDTO dto = new AlbumDTO();
+        List<SongForAlbumDTO> songDtos = album.getSongs().stream()
+                .map(song -> new SongForAlbumDTO(song.getTitle(), song.getViews(), song.getDuration()))
+                .toList();
 
-        dto.setTitle(album.getTitle());
-        dto.setGenre(album.getGenre().getName());
-        dto.setSongTitles(album.getSongs().stream().map(Song::getTitle).toList());
-        dto.setReleaseDate(album.getReleaseDate());
-        return dto;
+        return new AlbumDTO(
+                album.getId(),
+                album.getTitle(),
+                album.getReleaseDate(),
+                album.getBand().getName(),
+                album.getImageUrl(),
+                songDtos
+        );
     }
 
     public static Album toEntity(CreateAlbumDTO dto) {
@@ -27,8 +35,9 @@ public class AlbumMapper {
         }
 
         Album album = new Album();
-        album.setTitle(dto.getAlbumName());
-        album.setReleaseDate(dto.getReleaseDate());
+        album.setTitle(dto.title());
+        album.setReleaseDate(dto.releaseDate());
+        album.setImageUrl(dto.imageUrl());
 
         return album;
     }

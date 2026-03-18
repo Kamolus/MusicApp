@@ -32,14 +32,15 @@ public class Album{
     @NotBlank
     private String title;
 
-    @Column(nullable = false)
+    @Column
     @DateTimeFormat
     private String releaseDate;
 
     @ManyToOne
     private Genre genre;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "band_id", nullable = false)
     private Band band;
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
