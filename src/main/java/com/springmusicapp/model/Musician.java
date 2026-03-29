@@ -25,18 +25,18 @@ public class Musician extends User  {
     @Column(nullable = false)
     private String stageName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "band_id")
     private Band currentBand;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Song> guestApperances;
+    private Set<Song> guestAppearances;
 
     public Musician() {
     }
 
-    public Musician(String name, String email, String stageName, EnumSet<MusicianType> types) {
-        super(name, email);
+    public Musician(String name, String email,String password, String stageName, EnumSet<MusicianType> types) {
+        super(name, email, password, Role.ROLE_MUSICIAN);
         setStageName(stageName);
         this.types = types;
     }

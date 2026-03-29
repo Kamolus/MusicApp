@@ -19,7 +19,7 @@ import java.util.Optional;
 @Getter
 @Setter
 @Table(name = "band_managers")
-public class BandManager extends EventManager implements IScout {
+public class BandManager extends Employee implements IScout {
 
     private static final int MAX_CONTRACTS = 2; // Maksymalna liczba kontraktów, które może mieć menedżer
 
@@ -31,8 +31,8 @@ public class BandManager extends EventManager implements IScout {
      * Konstruktor menedżera zespołu.
      * Jeśli numer telefonu jest nieprawidłowy, obiekt zostaje usunięty z extentu.
      */
-    public BandManager(String name, String email, LocalDate hireDate, double salary, String areaOfOperation, String phoneNumber) {
-        super(name, email, hireDate, salary, areaOfOperation);
+    public BandManager(String name, String email, String password, LocalDate hireDate, double salary, String phoneNumber) {
+        super(name, email, password, Role.ROLE_BAND_MANAGER, hireDate, salary);
         setPhoneNumber(phoneNumber);
 
     }

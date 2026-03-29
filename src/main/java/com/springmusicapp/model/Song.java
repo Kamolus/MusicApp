@@ -30,9 +30,9 @@ public class Song{
     private String title;
 
     @Column
-    private int views;
+    private int views = 0;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")
     private Album album;
 
@@ -70,27 +70,21 @@ public class Song{
         this.title = title;
     }
 
-    public void setAlbum(Album album) {
-        if(this.album != null || album == null){
-            throw new IllegalArgumentException("Album cannot be null");
-        }
-        this.album = album;
-        album.addSong(this);
-    }
-
     public void setViews(int views) {
-        if (views <= 0){
+        if (views < 0){
             throw new IllegalArgumentException("Views must be greater than 0");
         }
         this.views = views;
     }
 
     public void removeAlbum() {
-        album.removeSong(this);
+        if (this.album != null) {
+            this.album.removeSong(this);
+        }
     }
 
     public List<Musician> getMusicians() {
-        return Collections.unmodifiableList(studioMusicians.stream().toList());
+        return List.copyOf(studioMusicians);
     }
 
     @Override

@@ -21,11 +21,11 @@ public class EventManager extends Employee {
     @Column(nullable = false)
     private String areaOfOperation;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "eventManager", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Event> events = new ArrayList<>();
 
-    public EventManager(String name, String email, LocalDate hireDate, double salary, String areaOfOperation) {
-        super(name, email, hireDate, salary);
+    public EventManager(String name, String email, String password, LocalDate hireDate, double salary, String areaOfOperation) {
+        super(name, email, password, Role.ROLE_EVENT_MANAGER, hireDate, salary);
         setAreaOfOperation(areaOfOperation);
     }
 
@@ -41,8 +41,8 @@ public class EventManager extends Employee {
 
     public void addEvent(Event event) {
         if(!events.contains(event) && event != null) {
-            event.setEventManager(this);
             events.add(event);
+            event.setEventManager(this);
         }
     }
 

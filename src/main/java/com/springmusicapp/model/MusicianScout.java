@@ -14,8 +14,8 @@ public class MusicianScout extends Employee implements IScout {
     @NotBlank
     private String phoneNumber;
 
-    public MusicianScout(String name, String email, LocalDate hireDate, double salary, String phoneNumber) {
-        super(name, email, hireDate, salary);
+    public MusicianScout(String name, String email, String password, LocalDate hireDate, double salary, String phoneNumber) {
+        super(name, email, password, Role.ROLE_SCOUT, hireDate, salary);
         setPhoneNumber(phoneNumber);
     }
 

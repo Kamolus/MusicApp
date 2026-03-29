@@ -9,7 +9,7 @@ public abstract class AbstractUserService<T extends User> {
 
     protected final UserRepository<T> userRepository;
 
-    public AbstractUserService(UserRepository userRepository) {
+    public AbstractUserService(UserRepository<T> userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -23,10 +23,10 @@ public abstract class AbstractUserService<T extends User> {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 
-    public void create(T user) {
+    public T create(T user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new BusinessLogicException("This email is already used", "ERR_EMAIL_ALREADY_USED");
         }
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 }

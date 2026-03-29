@@ -1,6 +1,8 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,12 +16,14 @@ public class Performance{
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
+    @NotNull
     private Event event;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "band_id")
+    @NotNull
     private Band band;
 
     private boolean isMainBand;
@@ -64,15 +68,16 @@ public class Performance{
     }
 
     public void removePerformance() {
-        event.removePerformance(this);
-        //usuwanie
+        if(this.event != null) {
+            this.event.removePerformance(this);
+        }
     }
 
     @Override
     public String toString() {
         return "Performance{" +
-                "event=" + event +
-                ", band=" + band +
+                "event=" + event.getName() +
+                ", band=" + band.getName() +
                 ", isMainBand=" + isMainBand +
                 '}';
     }

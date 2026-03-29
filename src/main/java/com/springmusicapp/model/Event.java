@@ -26,10 +26,12 @@ public class Event{
     @Column(nullable = false)
     private LocalDate date;
 
-    @OneToMany
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Performance> performances = new ArrayList<>();
 
-    @OneToOne
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_manager_id")
     private EventManager eventManager;
 
     public Event(String name, LocalDate date) {
@@ -54,14 +56,7 @@ public class Event{
     }
 
     public String getEventManager() {
-        return eventManager.toString();
-    }
-
-    public void setEventManager(EventManager eventManager) {
-        if (eventManager != null && !eventManager.equals(this.eventManager)){
-            this.eventManager = eventManager;
-            eventManager.addEvent(this);
-        }
+        return eventManager != null ? eventManager.toString() : "No event manager available";
     }
 
     public void removeEventManager() {

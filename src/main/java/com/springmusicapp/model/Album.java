@@ -13,7 +13,6 @@ import java.util.List;
 /**
  * Klasa reprezentująca album muzyczny.
  * Obsługuje relacje z zespołem, gatunkiem i utworami.
- * Dziedziczy po ObjectExtent – dodawana jest automatycznie do ekstensji.
  */
 @Entity
 @Getter
@@ -32,11 +31,11 @@ public class Album{
     @NotBlank
     private String title;
 
-    @Column
+    @Column(nullable = false)
     @DateTimeFormat
     private String releaseDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Genre genre;
 
     @ManyToOne(optional = false)
@@ -95,9 +94,6 @@ public class Album{
         }
     }
 
-    /**
-     * Pomocnicza metoda do nadpisania referencji zespołu (używana przez Band).
-     */
     protected void updateBand(Band band) {
         this.band = band;
     }
@@ -106,18 +102,16 @@ public class Album{
      * Dodaje utwór do albumu.
      */
     public void addSong(Song song) {
-        if (song != null && !songs.contains(song)) {
+        if (song != null) {
             songs.add(song);
+            song.setAlbum(this);
         }
     }
 
-    /**
-     * Usuwa utwór z albumu i z ekstensji.
-     */
     public void removeSong(Song song) {
-        if (songs.contains(song)) {
+        if (song != null) {
             songs.remove(song);
-            //dodac usuwanie
+            song.setAlbum(null);
         }
     }
 

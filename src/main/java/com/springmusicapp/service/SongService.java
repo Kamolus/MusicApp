@@ -1,8 +1,10 @@
 package com.springmusicapp.service;
 
 import com.springmusicapp.dto.CreateSongDTO;
+import com.springmusicapp.dto.SongDTO;
 import com.springmusicapp.dto.SongForAlbumDTO;
 import com.springmusicapp.exception.ResourceNotFoundException;
+import com.springmusicapp.mapper.SongMapper;
 import com.springmusicapp.model.Album;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.model.Song;
@@ -64,5 +66,36 @@ public class SongService {
         song.getStudioMusicians().add(musician);
 
         songRepository.save(song);
+    }
+
+    public List<SongDTO> findAllSongs() {
+        return songRepository.findAll().stream()
+                .map(SongMapper::toFullDTO)
+                .toList();
+    }
+
+    public SongDTO findSongById(Long id) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Song", "id", id));
+        return SongMapper.toFullDTO(song);
+    }
+
+    @Transactional
+    public SongDTO updateSong(Long id, CreateSongDTO updateDto) {
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Song", "id", id));
+
+        song.setTitle(updateDto.title());
+        song.setDuration(updateDto.durationMs());
+        Song updatedSong = songRepository.save(song);
+        return SongMapper.toFullDTO(updatedSong);
+    }
+
+    @Transactional
+    public void deleteSong(Long id) {
+        if (!songRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Song", "id", id);
+        }
+        songRepository.deleteById(id);
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @NoRepositoryBean
 public interface EmployeeRepository<T extends Employee> extends UserRepository<T> {
 
-    List<T> findByHireDate(String hireDate);
+    List<T> findByHireDate(LocalDate hireDate);
 
     @Query("SELECT e FROM #{#entityName} e WHERE e.hireDate BETWEEN :startDate AND :endDate")
     List<T> findByHireDateBetween(@Param("startDate") LocalDate hireDateStart, @Param("endDate") LocalDate hireDateEnd);

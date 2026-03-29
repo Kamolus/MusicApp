@@ -1,6 +1,8 @@
 package com.springmusicapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -13,6 +15,8 @@ import java.util.Objects;
  * Przykładowe klasy potomne: {@link MusicianScout}, {@link EventManager}, {@link BandManager}
  */
 @Entity
+@Getter
+@Setter
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "employees")
 public abstract class Employee extends User {
@@ -36,13 +40,20 @@ public abstract class Employee extends User {
      * @param hireDate  Data zatrudnienia (nie może być null).
      * @param salary    Wynagrodzenie (musi być nieujemne).
      */
-    public Employee(String name, String email, LocalDate hireDate, double salary) {
-        super(name, email);
+    public Employee(String name, String email, String password, Role role, LocalDate hireDate, double salary) {
+        super(name, email, password, role);
         this.hireDate = hireDate;
         setSalary(salary);
     }
 
     public Employee(){}
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.hireDate == null) {
+            this.hireDate = LocalDate.now();
+        }
+    }
 
     /**
      * Ustawia wysokość wynagrodzenia.

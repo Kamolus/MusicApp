@@ -27,6 +27,9 @@ public class MusicLabel {
     @OneToMany(mappedBy = "musicLabel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Employee> employees = new ArrayList<>();
 
+    @Column(nullable = false)
+    String taxNumber;
+
     public MusicLabel() {
     }
 

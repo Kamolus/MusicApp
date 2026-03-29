@@ -1,6 +1,7 @@
 package com.springmusicapp.service;
 
 import com.springmusicapp.dto.BandDTO;
+import com.springmusicapp.dto.CreateBandDTO;
 import com.springmusicapp.exception.BusinessLogicException;
 import com.springmusicapp.exception.ResourceNotFoundException;
 import com.springmusicapp.mapper.BandMapper;
@@ -53,8 +54,12 @@ public class BandService{
         musicianRepository.save(musician);
     }
 
-    public Band createBand(Band band) {
-        return bandRepository.save(band);
+    public BandDTO createBand(CreateBandDTO dto) {
+        Band band = BandMapper.toEntity(dto);
+
+        Band savedBand = bandRepository.save(band);
+
+        return BandMapper.toDto(savedBand);
     }
 
     public List<BandDTO> findAll() {

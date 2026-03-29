@@ -6,10 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Getter
@@ -21,13 +18,14 @@ public class Genre {
     private Long id;
 
     @NotBlank
+    @Column(unique = true, nullable = false)
     private String name;
 
     @NotBlank
     private String nationality;
 
-    @OneToMany
-    private Map<String, Album> albumMap = new HashMap<>();
+    @OneToMany(mappedBy = "genre", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Album> albums = new ArrayList<>();
 
     public Genre() {
     }
@@ -37,7 +35,6 @@ public class Genre {
         setNationality(nationality);
     }
 
-    //Unique
     public void setName(String name) {
         if(name == null || name.isEmpty()){
             throw new IllegalArgumentException("Name cannot be empty");
@@ -53,25 +50,20 @@ public class Genre {
     }
 
     public void addAlbum(Album album) {
-        if (album != null && album.getTitle() != null && !albumMap.containsKey(album.getTitle())) {
-            albumMap.put(album.getTitle(), album);
+        if (album != null && !albums.contains(album)) {
+            albums.add(album);
+            album.setGenre(this);
         }
     }
 
     public void removeAlbum(Album album) {
-        if (albumMap.containsKey(album.getTitle())) {
-            albumMap.remove(album.getTitle());
-            album.removeGenre(this);
+        if (albums.remove(album)) {
+            album.setGenre(null);
         }
     }
 
-    public Album getAlbumByTitle(String title) {
-        return albumMap.get(title);
-    }
-
-
-    public Collection<Album> getAllAlbums() {
-        return Collections.unmodifiableCollection(albumMap.values());
+    public List<Album> getAlbums() {
+        return Collections.unmodifiableList(albums);
     }
 
 

@@ -47,11 +47,8 @@ public class BandController {
 
     @PostMapping
     public ResponseEntity<BandDTO> createBand(@Valid @RequestBody CreateBandDTO createDto) {
-        Band newBand = BandMapper.toEntity(createDto);
-
-        Band savedBand = bandService.createBand(newBand);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(BandMapper.toDto(savedBand));
+        BandDTO saved = bandService.createBand(createDto);
+        return ResponseEntity.ok(saved);
     }
 
     @PostMapping("/{bandId}/musicians/{musicianId}")

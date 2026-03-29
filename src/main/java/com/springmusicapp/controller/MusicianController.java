@@ -1,9 +1,13 @@
 package com.springmusicapp.controller;
 
+import com.springmusicapp.dto.BandDTO;
+import com.springmusicapp.dto.CreateBandDTO;
 import com.springmusicapp.dto.CreateMusicianDTO;
 import com.springmusicapp.dto.MusicianDTO;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.service.MusicianService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +24,8 @@ public class MusicianController {
     }
 
     @PostMapping
-    public ResponseEntity<Musician> create(@RequestBody CreateMusicianDTO dto) {
-        Musician saved = musicianService.create(dto);
+    public ResponseEntity<MusicianDTO> create(@Valid @RequestBody CreateMusicianDTO dto) {
+        MusicianDTO saved = musicianService.create(dto);
         return ResponseEntity.ok(saved);
     }
 
@@ -36,22 +40,26 @@ public class MusicianController {
         return ResponseEntity.ok(musicianService.getAll());
     }
 
-    @PutMapping("/{musicianId}/assign-band/{bandId}")
-    public ResponseEntity<String> assignToBand(@PathVariable Long musicianId, @PathVariable Long bandId) {
-        musicianService.assignToBand(musicianId, bandId);
-        return ResponseEntity.ok("Musician assigned to band");
-    }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteById(@PathVariable Long id) {
         musicianService.removeById(id);
         return ResponseEntity.ok("Musician removed");
     }
 
-    @DeleteMapping("delete/by_email/{email}")
+    @DeleteMapping("/email/{email}")
     public ResponseEntity<String> deleteByEmail(@PathVariable String email) {
         musicianService.removeByEmail(email);
         return ResponseEntity.ok("Musician removed");
+    }
+
+    @PostMapping("/{musicianId}/bands")
+    public ResponseEntity<BandDTO> createBand(
+            @PathVariable Long musicianId,
+            @Valid @RequestBody CreateBandDTO bandDto) {
+
+        BandDTO newBand = musicianService.createBandByMusician(musicianId, bandDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newBand);
     }
 
 }

@@ -1,15 +1,21 @@
 package com.springmusicapp.service;
 
+import com.springmusicapp.dto.BandDTO;
+import com.springmusicapp.dto.CreateBandDTO;
 import com.springmusicapp.dto.CreateMusicianDTO;
 import com.springmusicapp.dto.MusicianDTO;
 import com.springmusicapp.exception.BusinessLogicException;
 import com.springmusicapp.exception.ResourceNotFoundException;
+import com.springmusicapp.mapper.BandMapper;
 import com.springmusicapp.mapper.MusicianMapper;
 import com.springmusicapp.model.Band;
 import com.springmusicapp.model.Musician;
 import com.springmusicapp.repository.BandRepository;
 import com.springmusicapp.repository.MusicianRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,17 +24,24 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     private final MusicianRepository musicianRepository;
     private final BandRepository bandRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public MusicianService(MusicianRepository musicianRepository,
-                           BandRepository bandRepository) {
+                           BandRepository bandRepository, PasswordEncoder passwordEncoder) {
         super(musicianRepository);
         this.musicianRepository = musicianRepository;
         this.bandRepository = bandRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Musician create(CreateMusicianDTO dto) {
+    public MusicianDTO create(CreateMusicianDTO dto) {
         Musician musician = MusicianMapper.toEntity(dto);
-        return musicianRepository.save(musician);
+
+        String encodedPassword = passwordEncoder.encode(musician.getPassword());
+        musician.setPassword(encodedPassword);
+
+        Musician savedMusician = super.create(musician);
+        return MusicianMapper.toDto(savedMusician);
     }
 
     public MusicianDTO getById(Long id) {
@@ -44,21 +57,6 @@ public class MusicianService extends AbstractUserService<Musician> {
                 .collect(Collectors.toList());
     }
 
-    public void assignToBand(Long musicianId, Long bandId){
-        Musician musician = musicianRepository.findById(musicianId)
-            .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", musicianId));
-
-        if (!musician.isAvailable()) {
-            throw new BusinessLogicException("Musician is already in a band", "ERR_Musician_already_in_band");
-        }
-
-        Band band = bandRepository.findById(bandId)
-                .orElseThrow(() -> new ResourceNotFoundException("Band", "id", bandId));
-
-        musician.assignToBand(band);
-        musicianRepository.save(musician);
-    }
-
     public void removeById(Long id) {
         if (!musicianRepository.existsById(id)) {
             throw new ResourceNotFoundException("Musician", "id", id);
@@ -71,6 +69,27 @@ public class MusicianService extends AbstractUserService<Musician> {
             throw new ResourceNotFoundException("Musician", "email", email);
         }
         musicianRepository.deleteByEmail(email);
+    }
+
+    @Transactional
+    public BandDTO createBandByMusician(Long musicianId, CreateBandDTO createBandDto) {
+        Musician musician = musicianRepository.findById(musicianId)
+                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", musicianId));
+
+        if (musician.getCurrentBand() != null) {
+            throw new BusinessLogicException(
+                    "This musician is already in a band",
+                    "ERR_MUSICIAN_ALREADY_IN_BAND"
+            );
+        }
+
+        Band band = new Band(createBandDto.name());
+
+        band.addMusician(musician);
+
+        bandRepository.save(band);
+
+        return BandMapper.toDto(band);
     }
 }
 
