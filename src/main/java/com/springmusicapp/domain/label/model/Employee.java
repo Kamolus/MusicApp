@@ -1,0 +1,114 @@
+package com.springmusicapp.domain.label.model;
+
+import com.springmusicapp.domain.user.model.Role;
+import com.springmusicapp.domain.user.model.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.Objects;
+
+/**
+ * Abstrakcyjna klasa reprezentująca pracownika systemu.
+ * Dziedziczy po klasie {@link User}, dodając atrybuty związane z zatrudnieniem:
+ * datę zatrudnienia oraz wysokość wynagrodzenia.
+ * <p>
+ * Przykładowe klasy potomne: {@link MusicianScout}, {@link EventManager}, {@link BandManager}
+ */
+@Entity
+@Getter
+@Setter
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "employees")
+public abstract class Employee extends User {
+    /** Data zatrudnienia pracownika. */
+    @Column(nullable = false)
+    private LocalDate hireDate;
+
+    /** Wynagrodzenie pracownika. */
+    @Column(nullable = false)
+    private double salary;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "label_id")
+    private MusicLabel musicLabel;
+
+    /**
+     * Konstruktor tworzący nowego pracownika z podanymi danymi.
+     *
+     * @param name      Imię i nazwisko pracownika.
+     * @param email     Adres e-mail.
+     * @param hireDate  Data zatrudnienia (nie może być null).
+     * @param salary    Wynagrodzenie (musi być nieujemne).
+     */
+    public Employee(String name, String email, String password, Role role, LocalDate hireDate, double salary) {
+        super(name, email, password, role);
+        this.hireDate = hireDate;
+        setSalary(salary);
+    }
+
+    public Employee(){}
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.hireDate == null) {
+            this.hireDate = LocalDate.now();
+        }
+    }
+
+    /**
+     * Ustawia wysokość wynagrodzenia.
+     * @param salary wartość nieujemna i nie mniejsza od poprzedniej
+     */
+    public void setSalary(double salary) {
+        if (salary < 0) {
+            throw new IllegalArgumentException("Salary cannot be negative");
+        }
+        if (salary < this.salary) {
+            throw new IllegalArgumentException("Salary can only increase");
+        }
+        this.salary = salary;
+    }
+
+    public void setMusicLabel(MusicLabel musicLabel) {
+        if (this.musicLabel != null) {
+            this.musicLabel.getEmployees().remove(this);
+        }
+
+        this.musicLabel = musicLabel;
+
+        if (musicLabel != null && !musicLabel.getEmployees().contains(this)) {
+            musicLabel.getEmployees().add(this);
+        }
+    }
+
+    public void removeMusicLabel() {
+        this.musicLabel = null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Employee employee = (Employee) o;
+        return Double.compare(salary, employee.salary) == 0 && Objects.equals(hireDate, employee.hireDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), hireDate, salary);
+    }
+
+    /**
+     * Reprezentacja tekstowa obiektu Employee.
+     * @return String zawierający datę zatrudnienia i wynagrodzenie
+     */
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "hireDate=" + hireDate +
+                ", salary=" + salary +
+                '}';
+    }
+}
