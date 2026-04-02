@@ -10,7 +10,7 @@
 
 **Spring Music App** is an advanced backend REST API environment for comprehensive management of the music industry. The application simulates real business processes occurring between musicians, bands, managers, and record labels.
 
-The project was designed with high performance, security, and clean architecture in mind, utilizing the latest standards of the Spring ecosystem.
+The project was designed with  security, and clean architecture in mind.
 
 ## Key Features
 
@@ -29,8 +29,6 @@ The project was designed with high performance, security, and clean architecture
 * **Security:** JSON Web Tokens (JWT)
 * **Infrastructure:** Docker & Docker Compose
 * **Tools:** Maven (Wrapper)
-
-## How to run the project locally
 
 ### Prerequisites
 * Docker and Docker Desktop / Docker Compose installed
