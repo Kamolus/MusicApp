@@ -17,6 +17,7 @@ import com.springmusicapp.domain.label.model.BandManager;
 import com.springmusicapp.domain.label.repository.BandManagerRepository;
 import com.springmusicapp.domain.musician.Musician;
 import com.springmusicapp.domain.musician.MusicianRepository;
+import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,6 @@ public class ContractNegotiationService {
     private final BandRepository bandRepository;
     private final BandManagerRepository managerRepository;
     private final MusicianRepository musicianRepository;
-
     private final ContractService contractService;
 
     public ContractNegotiationService(
@@ -50,10 +50,10 @@ public class ContractNegotiationService {
     @Transactional
     public ContractNegotiationDTO createOffer(CreateContractDTO dto, UUID loggedInManagerId) {
         BandManager manager = managerRepository.findById(loggedInManagerId)
-                .orElseThrow(() -> new IllegalArgumentException("Manager not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", loggedInManagerId));
 
         Band band = bandRepository.findById(dto.bandId())
-                .orElseThrow(() -> new IllegalArgumentException("Band not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Band", "id", dto.bandId()));
 
         ContractNegotiation negotiation = new ContractNegotiation();
 
@@ -72,17 +72,17 @@ public class ContractNegotiationService {
     @Transactional
     public ContractNegotiationDTO counterOfferByBand(UUID negotiationId, CounterOfferDTO dto, UUID loggedInMusicianId) {
         ContractNegotiation negotiation = negotiationRepository.findById(negotiationId)
-                .orElseThrow(() -> new IllegalArgumentException("Negotiation not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Negotiation", "id", negotiationId));
 
         Musician musician = musicianRepository.findById(loggedInMusicianId)
-                .orElseThrow(() -> new IllegalArgumentException("Musician not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", loggedInMusicianId));
 
         if (musician.getCurrentBand() == null || !negotiation.getBand().getId().equals(musician.getCurrentBand().getId())) {
-            throw new AccessDeniedException("You can only negotiate contracts for your own band!");
+            throw new AccessDeniedException("You can only negotiate contracts for your own band");
         }
 
         if (negotiation.getStatus() != InvitationStatus.AWAITING_BAND_APPROVAL) {
-            throw new BusinessLogicException("Negotiation is closed or manager don't answer yet","ERR_CLOSED_OR_MANAGER_NOT_APPROVED");
+            throw new BusinessLogicException("Negotiations have been completed or the manager has not responded yet","ERR_CLOSED_OR_MANAGER_NOT_APPROVED");
         }
 
         negotiation.applyCounterOffer(
@@ -98,7 +98,7 @@ public class ContractNegotiationService {
     @Transactional
     public ContractDTO acceptNegotiation(UUID negotiationId) {
         ContractNegotiation negotiation = negotiationRepository.findById(negotiationId)
-                .orElseThrow(() -> new IllegalArgumentException("Negotiation not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Negotiation", "id", negotiationId));
 
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -107,8 +107,7 @@ public class ContractNegotiationService {
 
         if (currentMusician.getCurrentBand() == null ||
                 !currentMusician.getCurrentBand().getId().equals(negotiation.getBand().getId())) {
-
-            throw new AccessDeniedException("Access denied");
+            throw new AccessDeniedException("You don't have permission to accept this negotiation");
         }
 
         negotiation.accept();
@@ -117,6 +116,27 @@ public class ContractNegotiationService {
         Contract newContract = contractService.createContractFromNegotiation(negotiation);
 
         return ContractMapper.toDTO(newContract);
+    }
+
+    public void removeContractOffer(UUID id){
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID currentUserId = currentUser.getId();
+
+        BandManager bandManager = managerRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Band manager", "id", currentUserId));
+
+        ContractNegotiation negotiation = negotiationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Negotiation", "id", id));
+
+        if(negotiation.getManager() == null || !negotiation.getManager().getId().equals(currentUserId)){
+            throw new AccessDeniedException("You don't have permission to cancel this negotiation");
+        }
+
+        if (!negotiation.getStatus().equals(InvitationStatus.PENDING)) {
+            throw new BusinessLogicException("Offer has already been accepted or rejected", "ERR_OFFER_ALREADY_CONSIDERED");
+        }
+
+        negotiationRepository.deleteById(id);
     }
 
     private ContractNegotiationDTO toDto(ContractNegotiation n) {

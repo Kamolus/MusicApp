@@ -10,7 +10,12 @@ import com.springmusicapp.domain.band.Band;
 import com.springmusicapp.domain.catalog.repository.AlbumRepository;
 import com.springmusicapp.domain.band.BandRepository;
 import com.springmusicapp.domain.catalog.repository.SongRepository;
+import com.springmusicapp.domain.musician.Musician;
+import com.springmusicapp.domain.musician.MusicianRepository;
+import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,17 +24,20 @@ import java.util.UUID;
 @Service
 public class AlbumService {
 
-    protected final AlbumRepository albumRepository;
-    protected final BandRepository bandRepository;
-    protected final SongRepository songRepository;
+    private final AlbumRepository albumRepository;
+    private final BandRepository bandRepository;
+    private final SongRepository songRepository;
+    private final MusicianRepository musicianRepository;
 
 
     public AlbumService(AlbumRepository albumRepository,
                         BandRepository bandRepository,
-                        SongRepository songRepository) {
+                        SongRepository songRepository,
+                        MusicianRepository musicianRepository) {
         this.albumRepository = albumRepository;
         this.bandRepository = bandRepository;
         this.songRepository = songRepository;
+        this.musicianRepository = musicianRepository;
     }
 
     public AlbumDTO findById(UUID id) {
@@ -55,8 +63,18 @@ public class AlbumService {
     }
 
     public void deleteById(UUID id) {
-        if (!albumRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Album", "id", id);
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID currentUserId = currentUser.getId();
+
+        Musician currentMusician = musicianRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
+
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Album", "id", id));
+
+        if (currentMusician.getCurrentBand() == null ||
+                !album.getBand().getId().equals(currentMusician.getCurrentBand().getId())) {
+            throw new AccessDeniedException("You are not authorized to remove this album");
         }
         albumRepository.deleteById(id);
     }

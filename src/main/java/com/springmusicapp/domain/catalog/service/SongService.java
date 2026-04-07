@@ -11,7 +11,10 @@ import com.springmusicapp.domain.catalog.model.Song;
 import com.springmusicapp.domain.catalog.repository.AlbumRepository;
 import com.springmusicapp.domain.musician.MusicianRepository;
 import com.springmusicapp.domain.catalog.repository.SongRepository;
+import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -94,8 +97,19 @@ public class SongService {
 
     @Transactional
     public void deleteSong(UUID id) {
-        if (!songRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Song", "id", id);
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID currentUserId = currentUser.getId();
+
+        Musician currentMusician = musicianRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
+
+        Song song = songRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Song", "id", id));
+
+        if (currentMusician.getCurrentBand() == null ||
+                !song.getAlbum().getBand().getId().equals(currentMusician.getCurrentBand().getId())) {
+
+            throw new AccessDeniedException("You are not authorized to remove this song");
         }
         songRepository.deleteById(id);
     }

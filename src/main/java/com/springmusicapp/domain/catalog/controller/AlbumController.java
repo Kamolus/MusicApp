@@ -8,6 +8,7 @@ import com.springmusicapp.domain.catalog.service.SongService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,5 +41,11 @@ public class AlbumController {
     @GetMapping("/{albumId}/songs")
     public ResponseEntity<List<SongForAlbumDTO>> getSongsForAlbum(@PathVariable UUID albumId) {
         return ResponseEntity.ok(songService.getSongsSummaryForAlbum(albumId));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteById(@PathVariable UUID id){
+        albumService.deleteById(id);
+        return ResponseEntity.ok("Album removed");
     }
 }
