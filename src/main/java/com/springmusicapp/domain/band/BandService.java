@@ -35,7 +35,7 @@ public class BandService{
         return bands.stream().map(BandMapper::toDto).toList();
     }
 
-    public void assignMusician(UUID bandId, UUID musicianId){
+    public void assignMusician(UUID bandId, String musicianId){
         Musician musician = musicianRepository.findById(musicianId)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", musicianId));
 

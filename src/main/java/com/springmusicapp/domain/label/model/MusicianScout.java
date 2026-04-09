@@ -1,6 +1,5 @@
 package com.springmusicapp.domain.label.model;
 
-import com.springmusicapp.domain.user.model.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -14,8 +13,8 @@ public class MusicianScout extends Employee implements IScout {
     @NotBlank
     private String phoneNumber;
 
-    public MusicianScout(String name, String email, String password, LocalDate hireDate, double salary, String phoneNumber) {
-        super(name, email, password, Role.ROLE_SCOUT, hireDate, salary);
+    public MusicianScout(String id, String name, String email, LocalDate hireDate, double salary, String phoneNumber) {
+        super(id, name, email, hireDate, salary);
         setPhoneNumber(phoneNumber);
     }
 

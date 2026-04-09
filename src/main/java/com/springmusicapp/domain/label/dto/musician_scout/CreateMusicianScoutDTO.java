@@ -1,12 +1,11 @@
-package com.springmusicapp.domain.label.dto;
+package com.springmusicapp.domain.label.dto.musician_scout;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
-public record CreateEventManagerDTO(
+public record CreateMusicianScoutDTO(
         @NotBlank(message = "Name cannot be empty")
         String name,
 
@@ -14,11 +13,7 @@ public record CreateEventManagerDTO(
         @Email(message = "Invalid email format")
         String email,
 
-        @NotBlank(message = "Password cannot be empty")
-        @Size(min = 4, message = "Password must be at least 4 characters long")
-        String password,
-
-        String areaOfOperation,
+        String phoneNumber,
 
         LocalDate hireDate
 ) {

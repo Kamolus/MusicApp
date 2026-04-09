@@ -16,9 +16,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id")
-    private User recipient;
+    @Column(name = "recipient_id", nullable = false)
+    private String recipientId;
 
     private String message;
     private LocalDateTime createdAt = LocalDateTime.now();

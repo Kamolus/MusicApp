@@ -41,14 +41,14 @@ public class Band {
 
     private double earnedMoney = 0.0;
 
-    @OneToMany(mappedBy = "currentBand",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "currentBand", fetch = FetchType.LAZY)
     protected final List<Musician> members = new ArrayList<>();
 
-    @OneToMany(mappedBy = "band",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "band", fetch = FetchType.LAZY)
     @OrderBy("releaseDate ASC")
     protected List<Album> albums = new ArrayList<>();
 
-    @OneToMany(mappedBy = "band",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "band", fetch = FetchType.LAZY)
     protected List<Performance> performances = new ArrayList<>();
 
     @OneToOne(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -120,7 +120,7 @@ public class Band {
     public void addMusician(Musician musician) {
         if (!members.contains(musician)) {
             members.add(musician);
-            musician.assignToBand(this); // dwustronna relacja
+            musician.assignToBand(this);
         }
     }
 

@@ -1,11 +1,7 @@
-package com.springmusicapp.domain.label.dto;
-
-import jakarta.validation.constraints.NotBlank;
-
-import java.util.UUID;
+package com.springmusicapp.domain.label.dto.label_owner;
 
 public record LabelOwnerDTO(
-        UUID id,
+        String id,
         String name,
         String email,
         String phoneNumber,

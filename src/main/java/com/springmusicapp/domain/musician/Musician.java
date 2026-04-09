@@ -2,7 +2,6 @@ package com.springmusicapp.domain.musician;
 
 import com.springmusicapp.domain.user.model.User;
 import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.user.model.Role;
 import com.springmusicapp.domain.catalog.model.Song;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -38,8 +37,8 @@ public class Musician extends User {
     public Musician() {
     }
 
-    public Musician(String name, String email,String password, String stageName, EnumSet<MusicianType> types) {
-        super(name, email, password, Role.ROLE_MUSICIAN);
+    public Musician(String id, String name, String email, String stageName, EnumSet<MusicianType> types) {
+        super(id, name, email);
         setStageName(stageName);
         this.types = types;
     }

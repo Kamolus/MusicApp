@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record MusicianDTO(
-        UUID id,
+        String id,
         String name,
         String email,
         String stageName,

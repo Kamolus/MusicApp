@@ -20,6 +20,7 @@ import com.springmusicapp.domain.musician.MusicianRepository;
 import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -48,7 +49,7 @@ public class ContractNegotiationService {
     }
 
     @Transactional
-    public ContractNegotiationDTO createOffer(CreateContractDTO dto, UUID loggedInManagerId) {
+    public ContractNegotiationDTO createOffer(CreateContractDTO dto, String loggedInManagerId) {
         BandManager manager = managerRepository.findById(loggedInManagerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", loggedInManagerId));
 
@@ -70,7 +71,7 @@ public class ContractNegotiationService {
     }
 
     @Transactional
-    public ContractNegotiationDTO counterOfferByBand(UUID negotiationId, CounterOfferDTO dto, UUID loggedInMusicianId) {
+    public ContractNegotiationDTO counterOfferByBand(UUID negotiationId, CounterOfferDTO dto, String loggedInMusicianId) {
         ContractNegotiation negotiation = negotiationRepository.findById(negotiationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Negotiation", "id", negotiationId));
 
@@ -119,8 +120,9 @@ public class ContractNegotiationService {
     }
 
     public void removeContractOffer(UUID id){
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UUID currentUserId = currentUser.getId();
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String currentUserId = jwt.getSubject();
 
         BandManager bandManager = managerRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Band manager", "id", currentUserId));

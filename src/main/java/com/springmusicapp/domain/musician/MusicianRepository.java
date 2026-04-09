@@ -1,8 +1,12 @@
 package com.springmusicapp.domain.musician;
 
+import com.springmusicapp.domain.band.Band;
 import com.springmusicapp.domain.label.model.MusicianScout;
 import com.springmusicapp.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

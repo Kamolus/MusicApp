@@ -6,6 +6,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,13 +24,24 @@ public class MusicianController {
     }
 
     @PostMapping
-    public ResponseEntity<MusicianDTO> create(@Valid @RequestBody CreateMusicianDTO dto) {
-        MusicianDTO saved = musicianService.create(dto);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<MusicianDTO> create(
+            @Valid @RequestBody CreateMusicianDTO dto,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        RegisterMusicianDTO command = new RegisterMusicianDTO(
+                jwt.getSubject(),
+                jwt.getClaimAsString("email"),
+                jwt.getClaimAsString("name"),
+                dto
+        );
+
+        MusicianDTO saved = musicianService.create(command);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MusicianDTO> getById(@PathVariable UUID id) {
+    public ResponseEntity<MusicianDTO> getById(@PathVariable String id) {
         MusicianDTO musician = musicianService.getById(id);
         return ResponseEntity.ok(musician);
     }
@@ -40,7 +53,7 @@ public class MusicianController {
 
     @PreAuthorize("principal.id == #id")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable UUID id) {
+    public ResponseEntity<String> deleteById(@PathVariable String id) {
         musicianService.removeById(id);
         return ResponseEntity.ok("Musician removed");
     }

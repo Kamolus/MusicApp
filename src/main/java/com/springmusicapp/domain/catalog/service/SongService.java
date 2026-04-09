@@ -11,10 +11,10 @@ import com.springmusicapp.domain.catalog.model.Song;
 import com.springmusicapp.domain.catalog.repository.AlbumRepository;
 import com.springmusicapp.domain.musician.MusicianRepository;
 import com.springmusicapp.domain.catalog.repository.SongRepository;
-import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,7 +60,7 @@ public class SongService {
     }
 
     @Transactional
-    public void addStudioMusicianToSong(UUID songId, UUID musicianId) {
+    public void addStudioMusicianToSong(UUID songId, String musicianId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new ResourceNotFoundException("Song", "id", songId));
 
@@ -97,8 +97,9 @@ public class SongService {
 
     @Transactional
     public void deleteSong(UUID id) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UUID currentUserId = currentUser.getId();
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String currentUserId = jwt.getSubject();
 
         Musician currentMusician = musicianRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));

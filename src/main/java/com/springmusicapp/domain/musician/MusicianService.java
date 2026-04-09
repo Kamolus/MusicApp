@@ -1,6 +1,5 @@
 package com.springmusicapp.domain.musician;
 
-import com.springmusicapp.domain.user.model.User;
 import com.springmusicapp.domain.user.service.AbstractUserService;
 import com.springmusicapp.domain.band.BandDTO;
 import com.springmusicapp.domain.band.CreateBandDTO;
@@ -10,11 +9,16 @@ import com.springmusicapp.domain.band.BandMapper;
 import com.springmusicapp.domain.band.Band;
 import com.springmusicapp.domain.band.BandRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,27 +30,29 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     private final MusicianRepository musicianRepository;
     private final BandRepository bandRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public MusicianService(MusicianRepository musicianRepository,
-                           BandRepository bandRepository, PasswordEncoder passwordEncoder) {
+                           BandRepository bandRepository) {
         super(musicianRepository);
         this.musicianRepository = musicianRepository;
         this.bandRepository = bandRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    public MusicianDTO create(CreateMusicianDTO dto) {
-        Musician musician = MusicianMapper.toEntity(dto);
+    public MusicianDTO create(@Valid @RequestBody RegisterMusicianDTO dto) {
 
-        String encodedPassword = passwordEncoder.encode(musician.getPassword());
-        musician.setPassword(encodedPassword);
+        Musician musician = MusicianMapper.toEntity(dto.userInput());
 
-        Musician savedMusician = super.create(musician);
+        Musician savedMusician = super.create(
+                musician,
+                dto.id(),
+                dto.email(),
+                dto.name()
+        );
+
         return MusicianMapper.toDto(savedMusician);
     }
 
-    public MusicianDTO getById(UUID id) {
+    public MusicianDTO getById(String id) {
         Musician musician = musicianRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", id));
         return MusicianMapper.toDto(musician);
@@ -59,7 +65,7 @@ public class MusicianService extends AbstractUserService<Musician> {
                 .collect(Collectors.toList());
     }
 
-    public void removeById(UUID id) {
+    public void removeById(String id) {
         if (!musicianRepository.existsById(id)) {
             throw new ResourceNotFoundException("Musician", "id", id);
         }
@@ -75,17 +81,15 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     @Transactional
     public BandDTO createBandByMusician(CreateBandDTO createBandDto) {
-        User currentUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UUID currentUserId = currentUser.getId();
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUserId = jwt.getSubject();
 
+        System.out.println(currentUserId);
         Musician musician = musicianRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
 
         if (musician.getCurrentBand() != null) {
-            throw new BusinessLogicException(
-                    "This musician is already in a band",
-                    "ERR_MUSICIAN_ALREADY_IN_BAND"
-            );
+            throw new IllegalStateException("Muzyk ma już zespół!");
         }
 
         Band band = new Band(createBandDto.name());

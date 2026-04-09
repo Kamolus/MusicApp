@@ -1,12 +1,11 @@
-package com.springmusicapp.domain.label.dto;
+package com.springmusicapp.domain.label.dto.band_manager;
 
 import com.springmusicapp.domain.contract.dto.ManagerContractDTO;
 
 import java.util.List;
-import java.util.UUID;
 
 public record BandManagerDTO(
-        UUID id,
+        String id,
         String name,
         String email,
         String phoneNumber,

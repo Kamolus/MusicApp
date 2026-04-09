@@ -48,7 +48,7 @@ public class ContractService {
                 .orElseThrow(() -> new ResourceNotFoundException("Contract", "id", bandId));
     }
 
-    public List<ContractDTO> getActiveContractsForManager(UUID managerId) {
+    public List<ContractDTO> getActiveContractsForManager(String managerId) {
         return contractRepository.findAllByManagerIdAndIsActiveTrue(managerId);
     }
 

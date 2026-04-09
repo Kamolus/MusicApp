@@ -18,7 +18,7 @@ public abstract class AbstractEmployeeService<T extends Employee> extends Abstra
     }
 
     @Transactional
-    public void updateSalary(UUID employeeId, double newSalary) {
+    public void updateSalary(String employeeId, double newSalary) {
         T employee = getByIdOrThrow(employeeId);
 
         try {

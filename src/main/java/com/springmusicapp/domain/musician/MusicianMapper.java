@@ -1,7 +1,6 @@
 package com.springmusicapp.domain.musician;
 
 import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.user.model.Role;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -37,11 +36,7 @@ public class MusicianMapper {
         }
 
         Musician musician = new Musician();
-        musician.setName(dto.name());
-        musician.setEmail(dto.email());
         musician.setStageName(dto.stageName());
-        musician.setPassword(dto.password());
-        musician.setRole(Role.ROLE_MUSICIAN);
 
         if (dto.types() != null) {
             EnumSet<MusicianType> typeSet = dto.types().stream()

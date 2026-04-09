@@ -38,7 +38,7 @@ public class ContractController {
     }
 
     @GetMapping("/manager/{managerId}")
-    public ResponseEntity<List<ContractDTO>> getActiveContractsForManager(@PathVariable UUID managerId) {
+    public ResponseEntity<List<ContractDTO>> getActiveContractsForManager(@PathVariable String managerId) {
         List<ContractDTO> contracts = contractService.getActiveContractsForManager(managerId);
         return ResponseEntity.ok(contracts);
     }

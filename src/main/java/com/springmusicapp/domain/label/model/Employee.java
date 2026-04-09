@@ -1,6 +1,5 @@
 package com.springmusicapp.domain.label.model;
 
-import com.springmusicapp.domain.user.model.Role;
 import com.springmusicapp.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -42,8 +41,8 @@ public abstract class Employee extends User {
      * @param hireDate  Data zatrudnienia (nie może być null).
      * @param salary    Wynagrodzenie (musi być nieujemne).
      */
-    public Employee(String name, String email, String password, Role role, LocalDate hireDate, double salary) {
-        super(name, email, password, role);
+    public Employee(String id, String name, String email, LocalDate hireDate, double salary) {
+        super(id, name, email);
         this.hireDate = hireDate;
         setSalary(salary);
     }

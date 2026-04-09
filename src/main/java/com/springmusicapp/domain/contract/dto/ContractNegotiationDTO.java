@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record ContractNegotiationDTO(
         UUID id,
-        UUID managerId,
+        String managerId,
         UUID bandId,
         int proposedDuration,
         double proposedBasePayment,

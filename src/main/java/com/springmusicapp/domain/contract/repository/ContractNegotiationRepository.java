@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface ContractNegotiationRepository extends JpaRepository<ContractNegotiation, UUID> {
-    List<ContractNegotiation> findAllByManagerId(UUID managerId);
+    List<ContractNegotiation> findAllByManagerId(String managerId);
     List<ContractNegotiation> findAllByBandId(UUID bandId);
 }

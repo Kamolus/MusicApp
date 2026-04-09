@@ -1,4 +1,4 @@
-package com.springmusicapp.domain.label.dto;
+package com.springmusicapp.domain.label.dto.music_label;
 
 import jakarta.validation.constraints.NotBlank;
 

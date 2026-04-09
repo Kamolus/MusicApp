@@ -48,7 +48,7 @@ public class BandController {
     }
 
     @PostMapping("/{bandId}/musicians/{musicianId}")
-    public ResponseEntity<String> assignMusicianToBand(@PathVariable UUID bandId, @PathVariable UUID musicianId) {
+    public ResponseEntity<String> assignMusicianToBand(@PathVariable UUID bandId, @PathVariable String musicianId) {
         bandService.assignMusician(bandId, musicianId);
 
         return ResponseEntity.ok("Musician assigned successfully to the band");

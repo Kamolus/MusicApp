@@ -14,7 +14,7 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
 
     Optional<ContractDTO> findByBandIdAndIsActiveTrue(UUID bandId);
 
-    List<ContractDTO> findAllByManagerIdAndIsActiveTrue(UUID managerId);
+    List<ContractDTO> findAllByManagerIdAndIsActiveTrue(String managerId);
 
     Optional<Contract> findById(UUID contractId);
 }

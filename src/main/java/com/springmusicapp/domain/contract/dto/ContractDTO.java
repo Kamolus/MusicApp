@@ -10,7 +10,7 @@ public record ContractDTO(
         double basePayment,
         double payPerPerformance
 ) {
-    public record ManagerSummaryDTO(UUID id, String name) {}
+    public record ManagerSummaryDTO(String id, String name) {}
     public record BandSummaryDTO(UUID id, String name) {}
 }
 
