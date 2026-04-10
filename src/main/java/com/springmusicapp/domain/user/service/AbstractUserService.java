@@ -48,7 +48,6 @@ public abstract class AbstractUserService<T extends User> {
         String id = event.id();
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
-            System.out.println("Znalazłem go! Usunięto użytkownika " + id + " przez " + this.getClass().getSimpleName());
         }
     }
 }

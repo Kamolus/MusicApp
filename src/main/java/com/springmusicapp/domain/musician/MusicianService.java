@@ -3,23 +3,19 @@ package com.springmusicapp.domain.musician;
 import com.springmusicapp.domain.user.service.AbstractUserService;
 import com.springmusicapp.domain.band.BandDTO;
 import com.springmusicapp.domain.band.CreateBandDTO;
-import com.springmusicapp.core.exception.BusinessLogicException;
 import com.springmusicapp.core.exception.ResourceNotFoundException;
 import com.springmusicapp.domain.band.BandMapper;
 import com.springmusicapp.domain.band.Band;
 import com.springmusicapp.domain.band.BandRepository;
+import com.springmusicapp.security.keycloak.KeycloakRoleService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -30,15 +26,19 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     private final MusicianRepository musicianRepository;
     private final BandRepository bandRepository;
+    private final KeycloakRoleService keycloakRoleService;
 
     public MusicianService(MusicianRepository musicianRepository,
-                           BandRepository bandRepository) {
+                           BandRepository bandRepository,
+                           KeycloakRoleService keycloakRoleService) {
         super(musicianRepository);
         this.musicianRepository = musicianRepository;
         this.bandRepository = bandRepository;
+        this.keycloakRoleService = keycloakRoleService;
     }
 
-    public MusicianDTO create(@Valid @RequestBody RegisterMusicianDTO dto) {
+    @Transactional
+    public MusicianDTO create(RegisterMusicianDTO dto) {
 
         Musician musician = MusicianMapper.toEntity(dto.userInput());
 
@@ -48,6 +48,8 @@ public class MusicianService extends AbstractUserService<Musician> {
                 dto.email(),
                 dto.name()
         );
+
+        keycloakRoleService.assignRealmRole(musician.getId(), "MUSICIAN");
 
         return MusicianMapper.toDto(savedMusician);
     }

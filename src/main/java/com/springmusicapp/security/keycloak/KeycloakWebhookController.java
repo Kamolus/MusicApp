@@ -2,7 +2,7 @@ package com.springmusicapp.security.keycloak;
 
 import com.springmusicapp.core.base.UserDeletedEvent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher; // <-- TO JEST NASZ MEGAFON
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class KeycloakWebhookController {
         this.eventPublisher = eventPublisher;
     }
 
-    @PostMapping("/events")
+    @PostMapping(value = {"/events", "/events/"})
     public ResponseEntity<String> handleKeycloakEvent(
             @RequestParam(value = "secret", required = false) String secret,
             @RequestBody Map<String, Object> payload) {
@@ -31,18 +31,17 @@ public class KeycloakWebhookController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Wrong password");
         }
 
-        String operationType = (String) payload.get("operationType");
-        String resourceType = (String) payload.get("resourceType");
+        String type = (String) payload.get("type");
 
-        if ("DELETE".equals(operationType) && "USER".equals(resourceType)) {
+        if ("USER-DELETE".equals(type)) {
             String resourcePath = (String) payload.get("resourcePath");
+
             if (resourcePath != null && resourcePath.startsWith("users/")) {
                 String extractedId = resourcePath.replace("users/", "");
-
                 eventPublisher.publishEvent(new UserDeletedEvent(extractedId));
             }
         }
 
-        return ResponseEntity.ok("Zdarzenie przyjęte");
+        return ResponseEntity.ok("Accepted");
     }
 }

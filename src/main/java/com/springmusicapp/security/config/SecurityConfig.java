@@ -24,11 +24,11 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
         jwtConverter.setJwtGrantedAuthoritiesConverter(keycloakRoleConverter);
 
-        http.authorizeHttpRequests(auth -> auth
+        http.csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/webhooks/keycloak/**"))
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .requestMatchers("/api/webhooks/keycloak/**").permitAll()
-                        // Przykładowe zabezpieczenia ścieżek (możesz to robić tu albo przez @PreAuthorize)
-                        // .requestMatchers("/api/contracts/**").hasRole("BAND_MANAGER")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
