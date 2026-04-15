@@ -1,8 +1,8 @@
 package com.springmusicapp.domain.label.mapper;
 
-import com.springmusicapp.domain.label.dto.CreateEventManagerDTO;
+import com.springmusicapp.domain.label.dto.event_manager.CreateEventManagerDTO;
 import com.springmusicapp.domain.event.EventDTO;
-import com.springmusicapp.domain.label.dto.EventManagerDTO;
+import com.springmusicapp.domain.label.dto.event_manager.EventManagerDTO;
 import com.springmusicapp.domain.label.model.EventManager;
 
 import java.util.List;
@@ -33,9 +33,6 @@ public class EventManagerMapper {
         if (dto == null) return null;
 
         EventManager eventManager = new EventManager();
-        eventManager.setName(dto.name());
-        eventManager.setEmail(dto.email());
-        eventManager.setPassword(dto.password());
 
         if (dto.areaOfOperation() != null) {
             eventManager.setAreaOfOperation(dto.areaOfOperation());

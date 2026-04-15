@@ -1,7 +1,6 @@
 package com.springmusicapp.domain.label.model;
 
-import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.user.model.Role;
+import com.springmusicapp.domain.band.model.Band;
 import com.springmusicapp.domain.contract.model.Contract;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -26,15 +25,15 @@ public class BandManager extends Employee implements IScout {
     private static final int MAX_CONTRACTS = 2; // Maksymalna liczba kontraktów, które może mieć menedżer
 
     @OneToMany
-    private List<Contract> contracts = new ArrayList<>(); // Lista aktywnych kontraktów
-    private String phoneNumber; // Numer telefonu menedżera
+    private List<Contract> contracts = new ArrayList<>();
+    private String phoneNumber;
 
     /**
      * Konstruktor menedżera zespołu.
      * Jeśli numer telefonu jest nieprawidłowy, obiekt zostaje usunięty z extentu.
      */
-    public BandManager(String name, String email, String password, LocalDate hireDate, double salary, String phoneNumber) {
-        super(name, email, password, Role.ROLE_BAND_MANAGER, hireDate, salary);
+    public BandManager(String id, String name, String email, LocalDate hireDate, double salary, String phoneNumber) {
+        super(id, name, email, hireDate, salary);
         setPhoneNumber(phoneNumber);
 
     }

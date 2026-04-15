@@ -3,8 +3,10 @@ package com.springmusicapp.domain.contract.service;
 import com.springmusicapp.core.base.InvitationStatus;
 import com.springmusicapp.core.exception.BusinessLogicException;
 import com.springmusicapp.core.exception.ResourceNotFoundException;
-import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.band.BandRepository;
+import com.springmusicapp.domain.band.model.Band;
+import com.springmusicapp.domain.band.model.BandMembership;
+import com.springmusicapp.domain.band.repository.BandRepository;
+import com.springmusicapp.domain.band.model.BandRole;
 import com.springmusicapp.domain.contract.dto.ContractDTO;
 import com.springmusicapp.domain.contract.dto.ContractNegotiationDTO;
 import com.springmusicapp.domain.contract.dto.CounterOfferDTO;
@@ -15,11 +17,9 @@ import com.springmusicapp.domain.contract.model.ContractNegotiation;
 import com.springmusicapp.domain.contract.repository.ContractNegotiationRepository;
 import com.springmusicapp.domain.label.model.BandManager;
 import com.springmusicapp.domain.label.repository.BandManagerRepository;
-import com.springmusicapp.domain.musician.Musician;
-import com.springmusicapp.domain.musician.MusicianRepository;
-import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -31,24 +31,21 @@ public class ContractNegotiationService {
     private final ContractNegotiationRepository negotiationRepository;
     private final BandRepository bandRepository;
     private final BandManagerRepository managerRepository;
-    private final MusicianRepository musicianRepository;
     private final ContractService contractService;
 
     public ContractNegotiationService(
             ContractNegotiationRepository negotiationRepository,
             BandRepository bandRepository,
             BandManagerRepository managerRepository,
-            MusicianRepository musicianRepository,
             ContractService contractService) {
         this.negotiationRepository = negotiationRepository;
         this.bandRepository = bandRepository;
         this.managerRepository = managerRepository;
-        this.musicianRepository = musicianRepository;
         this.contractService = contractService;
     }
 
     @Transactional
-    public ContractNegotiationDTO createOffer(CreateContractDTO dto, UUID loggedInManagerId) {
+    public ContractNegotiationDTO createOffer(CreateContractDTO dto, String loggedInManagerId) {
         BandManager manager = managerRepository.findById(loggedInManagerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Manager", "id", loggedInManagerId));
 
@@ -70,15 +67,19 @@ public class ContractNegotiationService {
     }
 
     @Transactional
-    public ContractNegotiationDTO counterOfferByBand(UUID negotiationId, CounterOfferDTO dto, UUID loggedInMusicianId) {
+    public ContractNegotiationDTO counterOfferByBand(UUID negotiationId, CounterOfferDTO dto, String loggedInMusicianId) {
         ContractNegotiation negotiation = negotiationRepository.findById(negotiationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Negotiation", "id", negotiationId));
 
-        Musician musician = musicianRepository.findById(loggedInMusicianId)
-                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", loggedInMusicianId));
+        Band band = negotiation.getBand();
 
-        if (musician.getCurrentBand() == null || !negotiation.getBand().getId().equals(musician.getCurrentBand().getId())) {
-            throw new AccessDeniedException("You can only negotiate contracts for your own band");
+        BandMembership membership = band.getMemberships().stream()
+                .filter(m -> m.getMusician().getId().equals(loggedInMusicianId))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("You can only negotiate contracts for your own band"));
+
+        if (membership.getRole() == BandRole.MEMBER) {
+            throw new AccessDeniedException("Only Admins and Founders can negotiate contracts");
         }
 
         if (negotiation.getStatus() != InvitationStatus.AWAITING_BAND_APPROVAL) {
@@ -100,14 +101,18 @@ public class ContractNegotiationService {
         ContractNegotiation negotiation = negotiationRepository.findById(negotiationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Negotiation", "id", negotiationId));
 
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUserId = jwt.getSubject();
 
-        Musician currentMusician = musicianRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("Musician", "email", currentUserEmail));
+        Band band = negotiation.getBand();
 
-        if (currentMusician.getCurrentBand() == null ||
-                !currentMusician.getCurrentBand().getId().equals(negotiation.getBand().getId())) {
-            throw new AccessDeniedException("You don't have permission to accept this negotiation");
+        BandMembership membership = band.getMemberships().stream()
+                .filter(m -> m.getMusician().getId().equals(currentUserId))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("You don't have permission to accept this negotiation"));
+
+        if (membership.getRole() == BandRole.MEMBER) {
+            throw new AccessDeniedException("Only Admins and Founders can accept contracts");
         }
 
         negotiation.accept();
@@ -119,8 +124,9 @@ public class ContractNegotiationService {
     }
 
     public void removeContractOffer(UUID id){
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UUID currentUserId = currentUser.getId();
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String currentUserId = jwt.getSubject();
 
         BandManager bandManager = managerRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Band manager", "id", currentUserId));

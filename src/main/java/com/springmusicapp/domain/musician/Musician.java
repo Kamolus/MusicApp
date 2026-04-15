@@ -1,17 +1,15 @@
 package com.springmusicapp.domain.musician;
 
+import com.springmusicapp.domain.band.model.BandMembership;
 import com.springmusicapp.domain.user.model.User;
-import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.user.model.Role;
+import com.springmusicapp.domain.band.model.Band;
 import com.springmusicapp.domain.catalog.model.Song;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -28,9 +26,8 @@ public class Musician extends User {
     @Column(nullable = false)
     private String stageName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "band_id")
-    private Band currentBand;
+    @OneToMany(mappedBy = "musician", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandMembership> memberships = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Song> guestAppearances;
@@ -38,8 +35,8 @@ public class Musician extends User {
     public Musician() {
     }
 
-    public Musician(String name, String email,String password, String stageName, EnumSet<MusicianType> types) {
-        super(name, email, password, Role.ROLE_MUSICIAN);
+    public Musician(String id, String name, String email, String stageName, EnumSet<MusicianType> types) {
+        super(id, name, email);
         setStageName(stageName);
         this.types = types;
     }
@@ -51,35 +48,17 @@ public class Musician extends User {
         this.stageName = stageName;
     }
 
-    public boolean isAvailable() {
-        return currentBand == null;
-    }
 
     public boolean hasType(MusicianType type) {
         return types.contains(type);
     }
 
-    public void assignToBand(Band band) {
-        if (band == null) {
-            throw new IllegalArgumentException("Band cannot be null");
-        }
-        if (!isAvailable()) {
-            throw new IllegalStateException("Musician is already in a band");
-        }
-        this.currentBand = band;
-        band.addMusician(this);
+    public List<Band> getBands() {
+        return memberships.stream()
+                .map(BandMembership::getBand)
+                .toList();
     }
 
-    public void removeBand(){
-        if (currentBand != null) {
-            currentBand.removeMusician(this);
-            this.currentBand = null;
-      }
-    }
-
-    protected void updateBand(Band band) {
-        this.currentBand = band;
-    }
 
     @Override
     public boolean equals(Object o) {

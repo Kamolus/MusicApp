@@ -28,8 +28,8 @@ public class Admin extends User {
     private LocalDate lastPasswordChangeDate;
 
 
-    public Admin(String name, String email, String password, AdminLevel adminLevel, String phoneNumber) {
-        super(name, email, password, Role.ROLE_ADMIN);
+    public Admin(String id, String name, String email, AdminLevel adminLevel, String phoneNumber) {
+        super(id, name, email);
         this.adminLevel = adminLevel;
         this.phoneNumber = phoneNumber;
         this.requiresPasswordChange = true;

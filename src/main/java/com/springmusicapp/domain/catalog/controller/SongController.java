@@ -23,7 +23,7 @@ public class SongController {
     @PostMapping("/{songId}/studio-musicians/{musicianId}")
     public ResponseEntity<Void> addStudioMusicianToSong(
             @PathVariable UUID songId,
-            @PathVariable UUID musicianId) {
+            @PathVariable String musicianId) {
 
         songService.addStudioMusicianToSong(songId, musicianId);
         return ResponseEntity.ok().build();

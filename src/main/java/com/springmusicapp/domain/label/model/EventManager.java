@@ -1,6 +1,5 @@
 package com.springmusicapp.domain.label.model;
 
-import com.springmusicapp.domain.user.model.Role;
 import com.springmusicapp.domain.event.Event;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -26,8 +25,8 @@ public class EventManager extends Employee {
     @OneToMany(mappedBy = "eventManager", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Event> events = new ArrayList<>();
 
-    public EventManager(String name, String email, String password, LocalDate hireDate, double salary, String areaOfOperation) {
-        super(name, email, password, Role.ROLE_EVENT_MANAGER, hireDate, salary);
+    public EventManager(String id, String name, String email, LocalDate hireDate, double salary, String areaOfOperation) {
+        super(id, name, email, hireDate, salary);
         setAreaOfOperation(areaOfOperation);
     }
 

@@ -1,6 +1,5 @@
 package com.springmusicapp.domain.label.model;
 
-import com.springmusicapp.domain.user.model.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -21,8 +20,8 @@ public class LabelOwner extends Employee {
     @Column(name = "position")
     private String position;
 
-    public LabelOwner(String name, String email, String password, Role role, LocalDate hireDate, double salary, String phoneNumber, String position) {
-        super(name, email, password, role, hireDate, salary);
+    public LabelOwner(String id, String name, String email, LocalDate hireDate, double salary, String phoneNumber, String position) {
+        super(id, name, email, hireDate, salary);
         this.phoneNumber = phoneNumber;
         this.position = position;
     }

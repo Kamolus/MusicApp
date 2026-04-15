@@ -1,7 +1,7 @@
 package com.springmusicapp.domain.label.mapper;
 
-import com.springmusicapp.domain.label.dto.CreateMusicianScoutDTO;
-import com.springmusicapp.domain.label.dto.MusicianScoutDTO;
+import com.springmusicapp.domain.label.dto.musician_scout.CreateMusicianScoutDTO;
+import com.springmusicapp.domain.label.dto.musician_scout.MusicianScoutDTO;
 import com.springmusicapp.domain.label.model.MusicianScout;
 
 public class MusicianScoutMapper {
@@ -21,9 +21,6 @@ public class MusicianScoutMapper {
         if (dto == null) return null;
 
         MusicianScout musicianScout = new MusicianScout();
-        musicianScout.setName(dto.name());
-        musicianScout.setEmail(dto.email());
-        musicianScout.setPassword(dto.password());
         musicianScout.setPhoneNumber(dto.phoneNumber());
 
         if(dto.hireDate() != null) {

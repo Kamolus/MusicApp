@@ -1,7 +1,7 @@
 package com.springmusicapp.domain.label.mapper;
 
-import com.springmusicapp.domain.label.dto.BandManagerDTO;
-import com.springmusicapp.domain.label.dto.CreateBandManagerDTO;
+import com.springmusicapp.domain.label.dto.band_manager.BandManagerDTO;
+import com.springmusicapp.domain.label.dto.band_manager.CreateBandManagerDTO;
 import com.springmusicapp.domain.contract.dto.ManagerContractDTO;
 import com.springmusicapp.domain.label.model.BandManager;
 
@@ -34,8 +34,6 @@ public class BandManagerMapper {
         if (dto == null) return null;
 
         BandManager bandManager = new BandManager();
-        bandManager.setName(dto.name());
-        bandManager.setEmail(dto.email());
         bandManager.setPhoneNumber(dto.phoneNumber());
 
         if(dto.hireDate() != null) {

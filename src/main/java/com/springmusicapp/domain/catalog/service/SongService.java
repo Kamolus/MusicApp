@@ -1,5 +1,8 @@
 package com.springmusicapp.domain.catalog.service;
 
+import com.springmusicapp.domain.band.model.Band;
+import com.springmusicapp.domain.band.model.BandMembership;
+import com.springmusicapp.domain.band.model.BandRole;
 import com.springmusicapp.domain.catalog.dto.CreateSongDTO;
 import com.springmusicapp.domain.catalog.dto.SongDTO;
 import com.springmusicapp.domain.catalog.dto.SongForAlbumDTO;
@@ -11,10 +14,10 @@ import com.springmusicapp.domain.catalog.model.Song;
 import com.springmusicapp.domain.catalog.repository.AlbumRepository;
 import com.springmusicapp.domain.musician.MusicianRepository;
 import com.springmusicapp.domain.catalog.repository.SongRepository;
-import com.springmusicapp.domain.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,7 +63,7 @@ public class SongService {
     }
 
     @Transactional
-    public void addStudioMusicianToSong(UUID songId, UUID musicianId) {
+    public void addStudioMusicianToSong(UUID songId, String musicianId) {
         Song song = songRepository.findById(songId)
                 .orElseThrow(() -> new ResourceNotFoundException("Song", "id", songId));
 
@@ -97,20 +100,23 @@ public class SongService {
 
     @Transactional
     public void deleteSong(UUID id) {
-        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UUID currentUserId = currentUser.getId();
-
-        Musician currentMusician = musicianRepository.findById(currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUserId = jwt.getSubject();
 
         Song song = songRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Song", "id", id));
 
-        if (currentMusician.getCurrentBand() == null ||
-                !song.getAlbum().getBand().getId().equals(currentMusician.getCurrentBand().getId())) {
+        Band band = song.getAlbum().getBand();
 
-            throw new AccessDeniedException("You are not authorized to remove this song");
+        BandMembership membership = band.getMemberships().stream()
+                .filter(m -> m.getMusician().getId().equals(currentUserId))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("You are not a member of the band that owns this song"));
+
+        if (membership.getRole() == BandRole.MEMBER) {
+            throw new AccessDeniedException("Only Admins and Founders can delete songs");
         }
+
         songRepository.deleteById(id);
     }
 }

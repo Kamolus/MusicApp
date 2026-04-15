@@ -26,7 +26,7 @@ public class ContractNegotiationController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('BAND_MANAGER')")
     public ResponseEntity<ContractNegotiationDTO> proposeContract(
             @Valid @RequestBody CreateContractDTO requestDto,
             @AuthenticationPrincipal User loggedInUser

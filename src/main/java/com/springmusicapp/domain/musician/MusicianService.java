@@ -1,21 +1,21 @@
 package com.springmusicapp.domain.musician;
 
-import com.springmusicapp.domain.user.model.User;
+import com.springmusicapp.core.base.UserRoleAssignmentEvent;
+import com.springmusicapp.domain.band.dto.BandDTO;
+import com.springmusicapp.domain.band.dto.CreateBandDTO;
+import com.springmusicapp.domain.band.mapper.BandMapper;
+import com.springmusicapp.domain.band.model.Band;
+import com.springmusicapp.domain.band.model.BandRole;
+import com.springmusicapp.domain.band.repository.BandRepository;
 import com.springmusicapp.domain.user.service.AbstractUserService;
-import com.springmusicapp.domain.band.BandDTO;
-import com.springmusicapp.domain.band.CreateBandDTO;
-import com.springmusicapp.core.exception.BusinessLogicException;
 import com.springmusicapp.core.exception.ResourceNotFoundException;
-import com.springmusicapp.domain.band.BandMapper;
-import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.band.BandRepository;
+import com.springmusicapp.security.keycloak.KeycloakRoleListener;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -26,27 +26,35 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     private final MusicianRepository musicianRepository;
     private final BandRepository bandRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final KeycloakRoleListener keycloakEventPublisher;
 
     public MusicianService(MusicianRepository musicianRepository,
-                           BandRepository bandRepository, PasswordEncoder passwordEncoder) {
+                           BandRepository bandRepository,
+                           KeycloakRoleListener keycloakEventPublisher) {
         super(musicianRepository);
         this.musicianRepository = musicianRepository;
         this.bandRepository = bandRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.keycloakEventPublisher = keycloakEventPublisher;
     }
 
-    public MusicianDTO create(CreateMusicianDTO dto) {
-        Musician musician = MusicianMapper.toEntity(dto);
+    @Transactional
+    public MusicianDTO create(RegisterMusicianDTO dto) {
 
-        String encodedPassword = passwordEncoder.encode(musician.getPassword());
-        musician.setPassword(encodedPassword);
+        Musician musician = MusicianMapper.toEntity(dto.userInput());
 
-        Musician savedMusician = super.create(musician);
+        Musician savedMusician = super.create(
+                musician,
+                dto.id(),
+                dto.email(),
+                dto.name()
+        );
+
+        keycloakEventPublisher.onUserRoleAssignment(new UserRoleAssignmentEvent(savedMusician.getId(), "MUSICIAN"));
+
         return MusicianMapper.toDto(savedMusician);
     }
 
-    public MusicianDTO getById(UUID id) {
+    public MusicianDTO getById(String id) {
         Musician musician = musicianRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", id));
         return MusicianMapper.toDto(musician);
@@ -59,7 +67,7 @@ public class MusicianService extends AbstractUserService<Musician> {
                 .collect(Collectors.toList());
     }
 
-    public void removeById(UUID id) {
+    public void removeById(String id) {
         if (!musicianRepository.existsById(id)) {
             throw new ResourceNotFoundException("Musician", "id", id);
         }
@@ -75,22 +83,15 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     @Transactional
     public BandDTO createBandByMusician(CreateBandDTO createBandDto) {
-        User currentUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UUID currentUserId = currentUser.getId();
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String currentUserId = jwt.getSubject();
 
         Musician musician = musicianRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
 
-        if (musician.getCurrentBand() != null) {
-            throw new BusinessLogicException(
-                    "This musician is already in a band",
-                    "ERR_MUSICIAN_ALREADY_IN_BAND"
-            );
-        }
-
         Band band = new Band(createBandDto.name());
 
-        band.addMusician(musician);
+        band.addMusician(musician, BandRole.FOUNDER);
 
         bandRepository.save(band);
 
@@ -98,14 +99,14 @@ public class MusicianService extends AbstractUserService<Musician> {
     }
 
     public List<MusicianDTO> getAllByCurrentBandId(UUID bandId) {
-        return musicianRepository.findAllByCurrentBandId(bandId)
+        return musicianRepository.findAllByBandId(bandId)
                 .stream()
                 .map(MusicianMapper::toDto)
                 .toList();
     }
 
     public List<MusicianDTO> findAllByCurrentBandIsNotNull() {
-        return musicianRepository.findAllByCurrentBandIsNotNull()
+        return musicianRepository.findAllByMembershipsIsNotEmpty()
                 .stream()
                 .map(MusicianMapper::toDto)
                 .toList();
