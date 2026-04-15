@@ -29,6 +29,7 @@ public abstract class BaseInvitation {
 
     public abstract void reject();
 
+    @PreUpdate
     protected void updateTimestamp() {
         this.updatedAt = LocalDateTime.now();
     }

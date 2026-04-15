@@ -1,6 +1,6 @@
 package com.springmusicapp.domain.contract.model;
 
-import com.springmusicapp.domain.band.Band;
+import com.springmusicapp.domain.band.model.Band;
 import com.springmusicapp.domain.label.model.BandManager;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,7 +39,6 @@ public class Contract {
 
     /**
      * Konstruktor tworzący nowy kontrakt.
-     *
      * manager            Menedżer podpisujący kontrakt.
      * band               Zespół, z którym podpisywany jest kontrakt (musi być popularny).
      * duration           Czas trwania kontraktu (w miesiącach lub latach).

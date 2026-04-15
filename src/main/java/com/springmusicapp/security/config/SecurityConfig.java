@@ -27,7 +27,7 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/webhooks/keycloak/**"))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/webhooks/keycloak/**").permitAll()
                         .anyRequest().authenticated()
                 )

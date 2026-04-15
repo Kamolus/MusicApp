@@ -1,21 +1,21 @@
 package com.springmusicapp.domain.musician;
 
+import com.springmusicapp.core.base.UserRoleAssignmentEvent;
+import com.springmusicapp.domain.band.dto.BandDTO;
+import com.springmusicapp.domain.band.dto.CreateBandDTO;
+import com.springmusicapp.domain.band.mapper.BandMapper;
+import com.springmusicapp.domain.band.model.Band;
+import com.springmusicapp.domain.band.model.BandRole;
+import com.springmusicapp.domain.band.repository.BandRepository;
 import com.springmusicapp.domain.user.service.AbstractUserService;
-import com.springmusicapp.domain.band.BandDTO;
-import com.springmusicapp.domain.band.CreateBandDTO;
 import com.springmusicapp.core.exception.ResourceNotFoundException;
-import com.springmusicapp.domain.band.BandMapper;
-import com.springmusicapp.domain.band.Band;
-import com.springmusicapp.domain.band.BandRepository;
-import com.springmusicapp.security.keycloak.KeycloakRoleService;
+import com.springmusicapp.security.keycloak.KeycloakRoleListener;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -26,15 +26,15 @@ public class MusicianService extends AbstractUserService<Musician> {
 
     private final MusicianRepository musicianRepository;
     private final BandRepository bandRepository;
-    private final KeycloakRoleService keycloakRoleService;
+    private final KeycloakRoleListener keycloakEventPublisher;
 
     public MusicianService(MusicianRepository musicianRepository,
                            BandRepository bandRepository,
-                           KeycloakRoleService keycloakRoleService) {
+                           KeycloakRoleListener keycloakEventPublisher) {
         super(musicianRepository);
         this.musicianRepository = musicianRepository;
         this.bandRepository = bandRepository;
-        this.keycloakRoleService = keycloakRoleService;
+        this.keycloakEventPublisher = keycloakEventPublisher;
     }
 
     @Transactional
@@ -49,7 +49,7 @@ public class MusicianService extends AbstractUserService<Musician> {
                 dto.name()
         );
 
-        keycloakRoleService.assignRealmRole(musician.getId(), "MUSICIAN");
+        keycloakEventPublisher.onUserRoleAssignment(new UserRoleAssignmentEvent(savedMusician.getId(), "MUSICIAN"));
 
         return MusicianMapper.toDto(savedMusician);
     }
@@ -86,17 +86,12 @@ public class MusicianService extends AbstractUserService<Musician> {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String currentUserId = jwt.getSubject();
 
-        System.out.println(currentUserId);
         Musician musician = musicianRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
 
-        if (musician.getCurrentBand() != null) {
-            throw new IllegalStateException("Muzyk ma już zespół!");
-        }
-
         Band band = new Band(createBandDto.name());
 
-        band.addMusician(musician);
+        band.addMusician(musician, BandRole.FOUNDER);
 
         bandRepository.save(band);
 
@@ -104,14 +99,14 @@ public class MusicianService extends AbstractUserService<Musician> {
     }
 
     public List<MusicianDTO> getAllByCurrentBandId(UUID bandId) {
-        return musicianRepository.findAllByCurrentBandId(bandId)
+        return musicianRepository.findAllByBandId(bandId)
                 .stream()
                 .map(MusicianMapper::toDto)
                 .toList();
     }
 
     public List<MusicianDTO> findAllByCurrentBandIsNotNull() {
-        return musicianRepository.findAllByCurrentBandIsNotNull()
+        return musicianRepository.findAllByMembershipsIsNotEmpty()
                 .stream()
                 .map(MusicianMapper::toDto)
                 .toList();

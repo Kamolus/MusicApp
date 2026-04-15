@@ -1,8 +1,15 @@
-package com.springmusicapp.domain.band;
+package com.springmusicapp.domain.band.controller;
 
+import com.springmusicapp.domain.band.dto.BandDTO;
+import com.springmusicapp.domain.band.dto.CreateBandDTO;
+import com.springmusicapp.domain.band.invite.InviteMusicianRequest;
+import com.springmusicapp.domain.band.service.BandService;
 import com.springmusicapp.domain.catalog.dto.AlbumDTO;
 import com.springmusicapp.domain.catalog.dto.CreateAlbumDTO;
 import com.springmusicapp.domain.catalog.service.AlbumService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/bands")
+@Tag(name = "Bands", description = "Endpoints for managing music bands and their memberships")
 public class BandController {
 
     private final BandService bandService;
@@ -61,5 +69,23 @@ public class BandController {
 
         AlbumDTO newAlbum = albumService.createAlbumForBand(bandId, createDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newAlbum);
+    }
+
+    @Operation(
+            summary = "Invite a musician to the band",
+            description = "Sends an invitation to a specified musician. The user making the request must have the FOUNDER or ADMIN role within the band."
+    )
+    @ApiResponse(responseCode = "201", description = "Invitation successfully created and event published")
+    @ApiResponse(responseCode = "400", description = "Invalid request payload or business validation failed (e.g., already a member)")
+    @ApiResponse(responseCode = "403", description = "Access denied. Insufficient permissions to invite members")
+    @ApiResponse(responseCode = "404", description = "Band or target musician not found")
+    @PostMapping("/{bandId}/invites")
+    public ResponseEntity<Void> inviteMusicianToBand(
+            @PathVariable UUID bandId,
+            @Valid @RequestBody InviteMusicianRequest request) {
+
+        bandService.inviteMusician(bandId, request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

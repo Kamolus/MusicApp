@@ -1,6 +1,6 @@
 package com.springmusicapp.domain.event;
 
-import com.springmusicapp.domain.band.Band;
+import com.springmusicapp.domain.band.model.Band;
 import com.springmusicapp.domain.label.model.EventManager;
 import jakarta.persistence.*;
 import lombok.Getter;

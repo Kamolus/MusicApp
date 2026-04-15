@@ -1,6 +1,6 @@
 package com.springmusicapp.domain.catalog.model;
 
-import com.springmusicapp.domain.band.Band;
+import com.springmusicapp.domain.band.model.Band;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -56,7 +56,7 @@ public class Album{
     public Album(){}
 
     public void setGenre(Genre genre) {
-        if (this.genre == null || genre.equals(this.genre)) {
+        if (this.genre != null && !genre.equals(this.genre)) {
             this.genre = genre;
             genre.addAlbum(this);
         }

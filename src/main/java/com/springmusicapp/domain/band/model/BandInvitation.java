@@ -1,4 +1,4 @@
-package com.springmusicapp.domain.band;
+package com.springmusicapp.domain.band.model;
 
 import com.springmusicapp.core.base.BaseInvitation;
 import com.springmusicapp.core.base.InvitationStatus;
@@ -21,11 +21,15 @@ public class BandInvitation extends BaseInvitation {
     @JoinColumn(name = "invitee_id", nullable = false)
     private Musician invitee;
 
+    @Column(length = 500)
+    private String message;
+
     public BandInvitation() {}
 
-    public BandInvitation(Band band, Musician invitee) {
+    public BandInvitation(Band band, Musician invitee, String message) {
         this.band = band;
         this.invitee = invitee;
+        this.message = message;
     }
 
     @Override
@@ -34,13 +38,10 @@ public class BandInvitation extends BaseInvitation {
             throw new IllegalStateException("Invitation is no longer pending");
         }
 
-        if (invitee.isAvailable()) {
-            band.addMusician(invitee);
-            setStatus(InvitationStatus.ACCEPTED);
-            updateTimestamp();
-        } else {
-            throw new IllegalStateException("Musician is already in another band");
-        }
+        BandMembership membership = new BandMembership(this.band, this.invitee, BandRole.MEMBER);
+        this.band.getMemberships().add(membership);
+
+        setStatus(InvitationStatus.ACCEPTED);
     }
 
     @Override
@@ -48,6 +49,7 @@ public class BandInvitation extends BaseInvitation {
         if (getStatus() != InvitationStatus.PENDING) {
             throw new IllegalStateException("Invitation is no longer pending");
         }
+
         setStatus(InvitationStatus.REJECTED);
         updateTimestamp();
     }

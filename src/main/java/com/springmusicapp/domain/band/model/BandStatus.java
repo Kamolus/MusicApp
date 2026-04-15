@@ -1,4 +1,4 @@
-package com.springmusicapp.domain.band;
+package com.springmusicapp.domain.band.model;
 
 public enum BandStatus {
     UNPOPULAR,

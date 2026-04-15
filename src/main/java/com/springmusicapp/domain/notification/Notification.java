@@ -21,7 +21,7 @@ public class Notification {
 
     private String message;
     private LocalDateTime createdAt = LocalDateTime.now();
-    private boolean isRead = false;
+    private boolean read = false;
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;

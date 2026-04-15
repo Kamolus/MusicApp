@@ -5,7 +5,7 @@ import com.springmusicapp.core.exception.ResourceNotFoundException;
 import com.springmusicapp.domain.label.dto.musician_scout.RegisterMusicianScoutDTO;
 import com.springmusicapp.domain.label.mapper.MusicianScoutMapper;
 import com.springmusicapp.domain.label.model.MusicianScout;
-import com.springmusicapp.domain.band.BandRepository;
+import com.springmusicapp.domain.band.repository.BandRepository;
 import com.springmusicapp.domain.label.repository.MusicianScoutRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;

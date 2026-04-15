@@ -2,13 +2,11 @@ package com.springmusicapp.domain.contract.model;
 
 import com.springmusicapp.core.base.BaseInvitation;
 import com.springmusicapp.core.base.InvitationStatus;
-import com.springmusicapp.domain.band.Band;
+import com.springmusicapp.domain.band.model.Band;
 import com.springmusicapp.domain.label.model.BandManager;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.UUID;
 
 @Entity
 @Getter

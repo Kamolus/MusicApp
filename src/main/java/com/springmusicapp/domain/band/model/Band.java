@@ -1,4 +1,4 @@
-package com.springmusicapp.domain.band;
+package com.springmusicapp.domain.band.model;
 
 import com.springmusicapp.domain.catalog.model.Album;
 import com.springmusicapp.domain.contract.model.Contract;
@@ -41,8 +41,8 @@ public class Band {
 
     private double earnedMoney = 0.0;
 
-    @OneToMany(mappedBy = "currentBand", fetch = FetchType.LAZY)
-    protected final List<Musician> members = new ArrayList<>();
+    @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandMembership> memberships = new ArrayList<>();
 
     @OneToMany(mappedBy = "band", fetch = FetchType.LAZY)
     @OrderBy("releaseDate ASC")
@@ -79,7 +79,7 @@ public class Band {
 
     public void addContract(Contract newContract) {
         if (this.status == BandStatus.UNPOPULAR) {
-            throw new IllegalStateException("Unpopular bands cannot sign contracts with managers!");
+            throw new IllegalStateException("Unpopular band cannot sign contracts with managers");
         }
 
         if (newContract == null) throw new IllegalArgumentException("Contract cannot be null");
@@ -117,21 +117,23 @@ public class Band {
     /**
      * Dodaje muzyka do zespołu i przypisuje mu zespół.
      */
-    public void addMusician(Musician musician) {
-        if (!members.contains(musician)) {
-            members.add(musician);
-            musician.assignToBand(this);
-        }
+    public void addMusician(Musician musician, BandRole role) {
+        BandMembership membership = new BandMembership(this, musician, role);
+        this.memberships.add(membership);
     }
 
     /**
      * Usuwa muzyka z zespołu.
      */
-    public void removeMusician(Musician musician) {
-        if (members.contains(musician)) {
-            members.remove(musician);
-            musician.removeBand(); // usunięcie relacji zwrotnej
+    public void removeMembership(BandMembership membership) {
+        if (!this.memberships.contains(membership)) {
+            throw new IllegalArgumentException("Band membership does not exist");
         }
+        this.memberships.remove(membership);
+        membership.getMusician().getMemberships().remove(membership);
+        
+        membership.setBand(null);
+        membership.setMusician(null);
     }
 
     /**
@@ -178,16 +180,13 @@ public class Band {
     }
 
     public List<Musician> getMembers() {
-        return Collections.unmodifiableList(members);
+        return memberships.stream().map(BandMembership::getMusician).toList();
     }
 
     public List<Album> getAlbums() {
         return Collections.unmodifiableList(albums);
     }
 
-    /**
-     * Reprezentacja tekstowa – tylko nazwa (dla JComboBox itp.).
-     */
     @Override
     public String toString() {
         return name;

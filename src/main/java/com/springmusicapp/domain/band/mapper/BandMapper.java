@@ -1,6 +1,9 @@
-package com.springmusicapp.domain.band;
+package com.springmusicapp.domain.band.mapper;
 
 
+import com.springmusicapp.domain.band.dto.BandDTO;
+import com.springmusicapp.domain.band.dto.CreateBandDTO;
+import com.springmusicapp.domain.band.model.Band;
 import com.springmusicapp.domain.catalog.model.Album;
 import com.springmusicapp.domain.musician.Musician;
 

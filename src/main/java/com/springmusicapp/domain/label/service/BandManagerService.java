@@ -6,7 +6,7 @@ import com.springmusicapp.domain.label.dto.band_manager.RegisterBandManagerDTO;
 import com.springmusicapp.domain.label.mapper.BandManagerMapper;
 import com.springmusicapp.domain.label.model.BandManager;
 import com.springmusicapp.domain.label.repository.BandManagerRepository;
-import com.springmusicapp.domain.band.BandRepository;
+import com.springmusicapp.domain.band.repository.BandRepository;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;

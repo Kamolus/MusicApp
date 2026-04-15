@@ -1,5 +1,8 @@
 package com.springmusicapp.domain.catalog.service;
 
+import com.springmusicapp.domain.band.model.Band;
+import com.springmusicapp.domain.band.model.BandMembership;
+import com.springmusicapp.domain.band.model.BandRole;
 import com.springmusicapp.domain.catalog.dto.CreateSongDTO;
 import com.springmusicapp.domain.catalog.dto.SongDTO;
 import com.springmusicapp.domain.catalog.dto.SongForAlbumDTO;
@@ -98,20 +101,22 @@ public class SongService {
     @Transactional
     public void deleteSong(UUID id) {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         String currentUserId = jwt.getSubject();
-
-        Musician currentMusician = musicianRepository.findById(currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Musician", "id", currentUserId));
 
         Song song = songRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Song", "id", id));
 
-        if (currentMusician.getCurrentBand() == null ||
-                !song.getAlbum().getBand().getId().equals(currentMusician.getCurrentBand().getId())) {
+        Band band = song.getAlbum().getBand();
 
-            throw new AccessDeniedException("You are not authorized to remove this song");
+        BandMembership membership = band.getMemberships().stream()
+                .filter(m -> m.getMusician().getId().equals(currentUserId))
+                .findFirst()
+                .orElseThrow(() -> new AccessDeniedException("You are not a member of the band that owns this song"));
+
+        if (membership.getRole() == BandRole.MEMBER) {
+            throw new AccessDeniedException("Only Admins and Founders can delete songs");
         }
+
         songRepository.deleteById(id);
     }
 }

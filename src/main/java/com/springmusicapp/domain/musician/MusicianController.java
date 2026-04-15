@@ -1,7 +1,7 @@
 package com.springmusicapp.domain.musician;
 
-import com.springmusicapp.domain.band.BandDTO;
-import com.springmusicapp.domain.band.CreateBandDTO;
+import com.springmusicapp.domain.band.dto.BandDTO;
+import com.springmusicapp.domain.band.dto.CreateBandDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

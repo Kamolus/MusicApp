@@ -1,10 +1,9 @@
 package com.springmusicapp.domain.musician;
 
-import com.springmusicapp.domain.band.Band;
+import com.springmusicapp.domain.band.model.Band;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MusicianMapper {
@@ -16,16 +15,15 @@ public class MusicianMapper {
                 .map(Enum::name)
                 .toList();
 
-        String currentBandName = Optional.ofNullable(musician.getCurrentBand())
-                .map(Band::getName)
-                .orElse(null);
+        List<String> bandsName = musician
+                .getBands().stream().map(Band::getName).toList();
 
         return new MusicianDTO(
                 musician.getId(),
                 musician.getName(),
                 musician.getEmail(),
                 musician.getStageName(),
-                currentBandName,
+                bandsName,
                 types
         );
     }

@@ -1,4 +1,4 @@
-package com.springmusicapp.domain.band;
+package com.springmusicapp.domain.band.dto;
 
 import java.util.List;
 import java.util.UUID;
